@@ -14,7 +14,8 @@ const app = express();
 
 // Middleware
 app.use( express.json() );
-app.use(cors())
+app.use( express.urlencoded({ extended: true }));
+app.use( cors() );
 
 app.use("/api/transactions", transactionsAPI);
 app.use("/api/budgets", budgetsAPI);

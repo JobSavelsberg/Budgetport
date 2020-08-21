@@ -1,16 +1,18 @@
 import Vue from "vue";
-import HelloComponent from "./components/Hello.vue";
+import App from "./App.vue";
+import Vuetify from "vuetify";
 
-let v = new Vue({
-    el: "#app",
-    template: `
-    <div>
-        Name: <input v-model="name" type="text">
-        <hello-component :name="name" :initialEnthusiasm="5" />
-    </div>
-    `,
-    data: { name: "World" },
-    components: {
-        HelloComponent
+Vue.config.productionTip = false;
+
+Vue.use(Vuetify);
+
+const vuetify = new Vuetify({
+    icons: {
+      iconfont: "mdi"
     }
-});
+  });
+
+new Vue({
+  vuetify,
+  render: h => h(App)
+}).$mount("#app");

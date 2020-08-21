@@ -1,7 +1,7 @@
 var path = require('path')
 var webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
-const HtmlWebpackPlugin = require('vue-html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: './src/client/index.ts',
@@ -13,6 +13,30 @@ module.exports = {
   mode: 'development',
   module: {
     rules: [
+      {
+        test: /\.s(c|a)ss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            // Requires sass-loader@^7.0.0
+            options: {
+              implementation: require('sass'),
+              fiber: require('fibers'),
+              indentedSyntax: true // optional
+            },
+            // Requires sass-loader@^8.0.0
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                fiber: require('fibers'),
+                indentedSyntax: true // optional
+              },
+            },
+          },
+        ],
+      },
       {
         test: /\.vue$/,
         loader: 'vue-loader',
@@ -36,13 +60,6 @@ module.exports = {
         }
       },
       {
-        test: /\.html$/,
-        loader: 'html-loader',
-        options: {
-          interpolate: true
-        }
-      },
-      {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'file-loader',
         options: {
@@ -55,6 +72,14 @@ module.exports = {
           'vue-style-loader',
           'css-loader'
         ]
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)$/,
+        loader: 'file-loader',
+        options: {
+            limit: 10000,
+            name: '[name].[hash:7].[ext]'
+        }
       }
     ]
   },
@@ -74,9 +99,8 @@ module.exports = {
   devtool: '#eval-source-map',
   plugins: [
     new HtmlWebpackPlugin({
-        title: 'Budgetport',
-        vue: true
-      }),
+      template: 'src\\client\\index.html',
+    }),
     // make sure to include the plugin for the magic
     new VueLoaderPlugin()
   ]

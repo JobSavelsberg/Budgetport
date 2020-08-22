@@ -2,6 +2,7 @@ var path = require('path')
 var webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
   entry: './src/client/index.ts',
@@ -13,6 +14,13 @@ module.exports = {
   mode: 'development',
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      },
       {
         test: /\.s(c|a)ss$/,
         use: [
@@ -57,6 +65,7 @@ module.exports = {
         exclude: /node_modules/,
         options: {
           appendTsSuffixTo: [/\.vue$/],
+          transpileOnly: true,
         }
       },
       {
@@ -65,13 +74,6 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
-      },
-      {
-        test: /\.css$/,
-        use: [
-          'vue-style-loader',
-          'css-loader'
-        ]
       },
       {
         test: /\.(woff2?|eot|ttf|otf)$/,
@@ -98,6 +100,7 @@ module.exports = {
   },
   devtool: '#eval-source-map',
   plugins: [
+    new ForkTsCheckerWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: 'src\\client\\index.html',
     }),

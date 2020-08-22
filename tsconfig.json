@@ -15,9 +15,6 @@
         "outDir": "build",                          
         "rootDir": "src",
         "experimentalDecorators": true,
-        "types":[
-            "vuetify"
-        ]
     },
     "include": [
         "src"

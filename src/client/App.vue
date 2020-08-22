@@ -1,103 +1,56 @@
 <template>
-  <v-app id="inspire">
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      clipped
-    >
-      <v-list dense>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-briefcase</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Budgets</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-receipt</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Transactions</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item> 
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-cog</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Settings</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
-    <v-app-bar
-      app
-      clipped-left
-    >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>Budgetport</v-toolbar-title>
-    </v-app-bar>
-
-    <v-main>
-      <v-container
-        class="fill-height"
-        fluid
-      >
-        <v-row
-          align="center"
-          justify="center"
-        >
-          <v-col class="shrink">
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  :href="source"
-                  icon
-                  large
-                  target="_blank"
-                  v-on="on"
-                >
-                  <v-icon large>mdi-code-tags</v-icon>
-                </v-btn>
-              </template>
-              <span>Source</span>
-            </v-tooltip>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
-
-    <v-footer app>
-      <div class="caption">Budgetport by Job Savelsberg &copy; {{ new Date().getFullYear() }}</div>
-    </v-footer>
-  </v-app>
+  <div id="app" class="app">
+    <Navbar class="header"/>
+    <div class="below-header">
+      <Sidebar/> 
+      <b-container class="content">
+        <br/>
+        <b-card>
+          <TransactionList/>
+        </b-card>
+      </b-container>
+    </div>
+  </div>
 </template>
 
-<script>
-  export default {
-    props: {
-      source: String,
-    },
-    data: () => ({
-      drawer: null,
-    }),
-    created () {
-      this.$vuetify.theme.dark = true
-    },
+<script lang="ts">
+import Sidebar from "./containers/Sidebar.vue"
+import Navbar from "./containers/Navbar.vue"
+import TransactionList from "./components/TransactionList.vue"
+
+export default {
+  components: {
+    Sidebar,
+    Navbar,
+    TransactionList
   }
+}
 </script>
 
 <style>
-
+html,body{
+  background: #EEf1F4;
+  font-family: 'Lato', sans-serif!important;
+  height:100%;
+  min-height: 100%;
+  margin:0;
+}
+.app{
+  margin: 0;
+  height: 100%;
+  min-height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+.header{
+  display: flex;
+  flex-direction: column;
+}
+.below-header{
+  display: flex;
+	flex-direction: row;
+  flex: 1 1 auto;
+}
+.content{
+}
 </style>

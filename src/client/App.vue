@@ -1,10 +1,6 @@
 <template>
-  <v-app id="inspire">
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      clipped
-    >
+  <v-app id="app">
+    <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
         <v-list-item link>
           <v-list-item-action>
@@ -41,41 +37,14 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar
-      app
-      clipped-left
-    >
+    <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Budgetport</v-toolbar-title>
     </v-app-bar>
 
     <v-main>
-      <v-container
-        class="fill-height"
-        fluid
-      >
-        <v-row
-          align="center"
-          justify="center"
-        >
-          <v-col class="shrink">
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  :href="source"
-                  icon
-                  large
-                  target="_blank"
-                  v-on="on"
-                >
-                  <v-icon large>mdi-code-tags</v-icon>
-                </v-btn>
-              </template>
-              <span>Source</span>
-            </v-tooltip>
-          </v-col>
-        </v-row>
-      </v-container>
+      <TransactionTable/>
+      <!--<v-container class="fill-height" fluid> </v-container>-->
     </v-main>
 
     <v-footer app>
@@ -85,17 +54,37 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      source: String,
-    },
-    data: () => ({
-      drawer: null,
-    }),
-    created () {
-      this.$vuetify.theme.dark = true
-    },
+import TransactionTable from "./components/TransactionTable.vue"
+import api from "./services/initAxios"
+
+export default {
+  props: {
+    source: String,
+  },
+  data: () => ({
+    drawer: null,
+  }),
+  beforeMount() {
+    /*api().get("/transactions/all").then((res: any) => {
+      console.log(res);
+    }).catch((err: any) => {
+      console.log(err);
+    });*/
+    console.log("Poop");
+  },
+  mounted() {
+    console.log("mounted");
+  },
+  created () {
+    this.$vuetify.theme.dark = true
+  },
+  destroyed(){
+    console.log("bye");
+  },
+  components: {
+    TransactionTable
   }
+}
 </script>
 
 <style>

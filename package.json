@@ -12,7 +12,7 @@
     "dev:server": "nodemon --watch src/server --ext ts --exec \"npm run restart:server\"",
     "restart:server": "npm run build:server && npm run start:server",
     "build:client": "rimraf ./build/client && webpack",
-    "build:server": "rimraf ./build/server && tsc --project ./tsconfig.server.json",
+    "build:server": "rimraf ./build/server && tsc --project ./tsconfig.server.json --skipLibCheck",
     "start:server": "node build/server/main.js"
   },
   "repository": {
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/JobSavelsberg/Budgetport#readme",
   "dependencies": {
+    "axios": "^0.20.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -35,7 +36,8 @@
     "vue": "^2.6.12",
     "vue-class-component": "^7.2.5",
     "vue-property-decorator": "^9.0.0",
-    "vuetify": "^2.3.9"
+    "vuetify": "^2.3.9",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.7",

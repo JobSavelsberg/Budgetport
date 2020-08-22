@@ -7,10 +7,10 @@ Vue.config.productionTip = false;
 Vue.use(Vuetify);
 
 const vuetify = new Vuetify({
-    icons: {
-      iconfont: "mdi"
-    }
-  });
+  icons: {
+    iconfont: "mdi"
+  }
+});
 
 new Vue({
   vuetify,

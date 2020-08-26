@@ -4,6 +4,7 @@ import { Category, CategoryGroup } from "./objects/category";
 import { Budget, Month } from "./objects/budget";
 import assert from "assert";
 import { Deposit } from "./objects/deposit";
+import e from "express";
 
 /**
  *  Used to keep track of all database objects, transactions budgets, categories.
@@ -36,6 +37,8 @@ const deposits: Map<number, Deposit>= new Map();
 let allDeposit: Deposit;
 
 const budgets: Map<number, Budget> = new Map();
+
+const payees: Map<string, number> = new Map();
 
 /**
  * Import categories and deposits in parallel, and then transactions and budgets in parallel
@@ -120,13 +123,23 @@ function importTransaction(id: number, deposit_id: number, date: string, payee: 
         const transaction = new Transaction(id, deposit, Dayte.fromString(date), payee, category, memo, inflow, outflow);
         allTransactions.set(id, transaction);
         deposit.addTransaction(transaction);
+        addPayee(payee);
     }else if(!deposit){
         throw new Error(`Deposit does not exist on transaction with id: ${id}, deposit id: ${deposit_id}`);
     }else if(!category){
         throw new Error(`Category does not exist on transaction with id: ${id}, category id: ${category_id}`);
     }
 };
-
+function addPayee(payee: string){
+    if(payee){
+        const payeeEntry = payees.get(payee);
+        if(payeeEntry){
+            payees.set(payee,payeeEntry+1);
+        }else{
+            payees.set(payee,1);
+        }
+    }
+}
 /*
 *  Create Budget retrieved from db and add it to the list of budgets
 */
@@ -144,9 +157,23 @@ export function getTransactions(depositId: number): Transaction[]{
     assert(deposit);
     return deposit.getTransactions();
 }
-
+export function getCategories(): Category[]{
+    return Array.from(categories.values());
+}
 export function getCategory(categoryId: number): Category{
     const category = categories.get(categoryId);
     assert(category);
     return category;
+}
+
+export function getPayees(): string[] {
+    const payeesArraySortedByFrequency: any[] = [];
+    payees.forEach((frequency: number, payee:string)=>{
+        const entry = {frequency: frequency, payee: payee};
+        payeesArraySortedByFrequency.push(entry);
+    });
+    payeesArraySortedByFrequency.sort((a: any,b: any) => {
+        return b.frequency - a.frequency;
+    })
+    return payeesArraySortedByFrequency.map((entry: any) => { return entry.payee });
 }

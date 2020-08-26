@@ -13,7 +13,6 @@
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
               v-model="dateInput"
-              append-icon="mdi-calendar"
               readonly
               v-bind="attrs"
               v-on="on"
@@ -24,10 +23,29 @@
         </v-menu>
         </td>
         <td>
-            <v-text-field v-model="payeeInput" label="Payee" single-line></v-text-field>
+            <!--<v-text-field v-model="payeeInput" label="Payee" single-line>-->
+            <v-autocomplete
+              v-model="payeeInput"
+              :items="payeeList"
+              color="white"
+              hide-selected
+              item-value="Payee"
+              label="Payee"
+              single-line
+            ></v-autocomplete>
         </td>
         <td>
-            <v-text-field v-model="categoryInput" label="Category" single-line></v-text-field>
+            <v-autocomplete
+              v-model="categoryInput"
+              :items="categoryList"
+              item-text="name"
+              color="white"
+              hide-selected
+              item-value="Category"
+              label="Category"
+              return-object
+              single-line
+            ></v-autocomplete>
         </td>
         <td>
             <v-text-field v-model="memoInput"  label="Memo" single-line></v-text-field>
@@ -63,7 +81,7 @@
 
 <script>
 import app from "../app/app"
-import {getTransactions, getCategory} from "../app/db"
+import {getTransactions, getCategory,getCategories, getPayees} from "../app/db"
 
 export default {
   props: [
@@ -71,6 +89,8 @@ export default {
   ],
   data () {
     return {
+      payeeList: [],
+      categoryList: [],
       menu: false,
       dateInput: new Date().toISOString().substr(0, 10),
       payeeInput: "",
@@ -106,6 +126,12 @@ export default {
         }
       );
     }
+
+    this.categoryList = getCategories().map((category) => {return category.json()});
+    console.log(this.categoryList);
+    
+    this.payeeList = getPayees();
+
   },
   methods:{
     getCategory(categoryId){

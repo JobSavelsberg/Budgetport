@@ -31,6 +31,14 @@ export class Category{
         this.color = color;
     }
 
+    public json(): any{
+        return {
+            id: this.id,
+            name: this.name,
+            color: this.color,
+        }
+    }
+
     public getName(): string{
         return this.name;
     }

@@ -1,12 +1,14 @@
 import express from "express";
+import pg from "pg";
 import { pool } from "./postgresWrapper";
 
 export const router = express.Router();
 
-// Get transactions
+// Get deposits
 router.get("/", async (req, res) => {
     const userId = req.query.userId;
-    pool.query("SELECT * FROM transactions WHERE user_id=$1", [userId], (error, results) => {
+    const b = req.params;
+    pool.query("SELECT * FROM deposits WHERE user_id=$1", [userId], (error, results) => {
         if (error) throw error;
         res.status(200).json(results.rows)
     });
@@ -14,47 +16,47 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     const userId = req.query.userId;
     const id = req.params.id;
-    const b = req.body;
-    pool.query("SELECT * FROM transactions WHERE user_id=$1 AND id=$2", [userId, id], (error, results) => {
+    pool.query("SELECT * FROM deposits WHERE user_id=$1 AND id=$2", [userId, id], (error, results) => {
         if (error) throw error;
         res.status(200).json(results.rows)
     });
 })
 
-// Add transaction
+// Add deposit
 router.post("/", async (req, res) => {
     const userId = req.query.userId;
     const b = req.body;
-    pool.query(`INSERT INTO transactions( user_id, deposit, date, payee, category_id, memo, inflow, outflow )
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+    console.log(b);
+    pool.query(`INSERT INTO deposits( user_id, name )
+        VALUES($1, $2)
         RETURNING id;`,
-    [userId, b.deposit, b.date, b.payee, b.categoryId, b.memo, b.inflow, b.outflow],
+    [userId, b.name],
     (error, results) => {
         if (error) throw error;
         res.status(200).json(results.rows)
     });
 })
 
-// Edit transaction
+// Edit deposit
 router.put("/:id", async (req, res) => {
     const userId = req.query.userId;
     const id = req.params.id;
     const b = req.body;
-    pool.query(`UPDATE transactions SET deposit = $3, date = $4, payee = $5, category_group = $6, memo = $7, inflow = $8, outflow = $9
+    pool.query(`UPDATE deposits SET name = $3
         WHERE id = $2 AND user_id = $1
         RETURNING id;`,
-    [userId, id, b.deposit, b.date, b.payee, b.categoryId, b.memo, b.inflow, b.outflow],
+    [userId, id, b.name],
     (error, results) => {
         if (error) throw error;
         res.status(200).json(results.rows)
      });
 });
 
-// Delete transaction
+// Delete deposit
 router.delete("/:id", async (req, res) => {
     const userId = req.query.userId;
     const id = req.params.id;
-    pool.query(`DELETE FROM transactions
+    pool.query(`DELETE FROM deposits
         WHERE   user_id = $1
         AND     id = $2`,
     [userId, id],

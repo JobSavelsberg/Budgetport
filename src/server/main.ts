@@ -3,8 +3,9 @@ import express from "express";
 import cors from "cors";
 import {router as transactionsAPI} from "./routes/api/transactionsAPI";
 import {router as budgetsAPI} from "./routes/api/budgetsAPI";
+import {router as categoriesAPI} from "./routes/api/categoriesAPI";
+import {router as depositsAPI} from "./routes/api/depositsAPI";
 
-//import budgetsAPI from "./routes/api/budgetsAPI";
 
 // initialize configuration
 dotenv.config();
@@ -19,5 +20,7 @@ app.use( cors() );
 
 app.use("/api/transactions", transactionsAPI);
 app.use("/api/budgets", budgetsAPI);
+app.use("/api/categories", categoriesAPI);
+app.use("/api/deposits", depositsAPI);
 
 app.listen(port, () => console.log(`Server started on: http://localhost:${port}`))

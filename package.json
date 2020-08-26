@@ -5,14 +5,15 @@
   "main": "index.js",
   "scripts": {
     "initdb": "ts-node src/server/database/runQuery initdb",
+    "populatedb": "ts-node src/server/database/runQuery populatedb",
     "viewdb": "ts-node src/server/database/runQuery viewdb",
     "dbcli": "docker exec -it budgetport-db psql -U postgres",
     "lint": "eslint . --ext .ts",
-    "dev:client": "nodemon --watch src/client --ext ts,vue --exec \"npm run build:client\"",
+    "dev:client": "nodemon --watch src/client --ext ts,vue,js --exec \"npm run build:client\"",
     "dev:server": "nodemon --watch src/server --ext ts --exec \"npm run restart:server\"",
     "restart:server": "npm run build:server && npm run start:server",
     "build:client": "rimraf ./build/client && webpack",
-    "build:server": "rimraf ./build/server && tsc --project ./tsconfig.server.json --skipLibCheck",
+    "build:server": "rimraf ./build/server && tsc --project ./tsconfig.server.json",
     "start:server": "node build/server/main.js"
   },
   "repository": {

@@ -1,4 +1,5 @@
 <template>
+
   <v-app id="app">
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
@@ -43,8 +44,21 @@
     </v-app-bar>
 
     <v-main>
-      <TransactionTable/>
-      <!--<v-container class="fill-height" fluid> </v-container>-->
+      <v-alert v-if="failedToLoad" type="error">
+        Failed to connect to database.
+      </v-alert>
+      <v-layout v-if="isLoading"
+        fill-height fluid align-center justify-center column> 
+        <v-flex row align-center>
+          <v-progress-circular 
+            :size="150"
+            :width="15"
+            color="grey"
+            indeterminate
+          ></v-progress-circular>
+        </v-flex>
+      </v-layout>
+      <TransactionTable :deposit-id="depositId" v-else/>
     </v-main>
 
     <v-footer app>
@@ -55,27 +69,30 @@
 
 <script>
 import TransactionTable from "./components/TransactionTable.vue"
-import api from "./services/initAxios"
+import {init} from "./app/app";
 
 export default {
   props: {
     source: String,
   },
-  data: () => ({
-    drawer: null,
-  }),
-  beforeMount() {
-    /*api().get("/transactions/all").then((res: any) => {
-      console.log(res);
-    }).catch((err: any) => {
-      console.log(err);
-    });*/
-    console.log("Poop");
+  data () {
+    return {
+      drawer: null,
+      isLoading: true,
+      failedToLoad: false,
+      depositId: 1
+    }
   },
-  mounted() {
-    console.log("mounted");
+  beforeCreate() {
+    console.log("onCreate()");
+    init().then(() => {
+      this.isLoading = false;
+    }).catch(() =>{
+      this.failedToLoad = true;
+    })
   },
   created () {
+    console.log("created()");
     this.$vuetify.theme.dark = true
   },
   destroyed(){

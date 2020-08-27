@@ -5,6 +5,7 @@ import { Budget, Month } from "./objects/budget";
 import assert from "assert";
 import { Deposit } from "./objects/deposit";
 import e from "express";
+import { moveMessagePortToContext } from "worker_threads";
 
 /**
  *  Used to keep track of all database objects, transactions budgets, categories.
@@ -130,6 +131,47 @@ function importTransaction(id: number, deposit_id: number, date: string, payee: 
         throw new Error(`Category does not exist on transaction with id: ${id}, category id: ${category_id}`);
     }
 };
+/**
+ * Create Transaction and make sure the database is up to date
+ */
+export async function addTransaction(deposit_id: number, date: string, payee: string, category_id: number, memo: string, inflow: number, outflow: number){
+    const deposit = deposits.get(deposit_id);
+    const category = categories.get(category_id);
+    if(deposit && category){
+        if(inflow && outflow) throw new Error('Both inflow and outflow are set');
+        const transaction = {
+            depositId: deposit.id,
+            date: date,
+            payee: payee,
+            categoryId: category.id,
+            memo: memo,
+            inflow: Number(inflow),
+            outflow: Number(outflow)
+        }
+        await api.post("/transactions/", transaction).then((transactionsRes: any)=>{
+            const id = transactionsRes.data[0].id;
+            assert(id);
+            const transaction = new Transaction(id, deposit, Dayte.fromString(date), payee, category, memo, inflow, outflow);
+            allTransactions.set(id, transaction);
+            deposit.addTransaction(transaction);
+            addPayee(payee);
+        });
+    }else if(!deposit){
+        throw new Error(`Deposit does not exist; deposit id: ${deposit_id}`);
+    }else if(!category){
+        throw new Error(`Category does not exist; category id: ${category_id}`);
+    }
+}
+
+export async function deleteTransaction(id: number){
+    const transaction = allTransactions.get(id);
+    assert(transaction);
+    const deposit = transaction.getDeposit();
+    deposit.removeTransaction(id);
+    allTransactions.delete(id);
+    return api.delete(`/transactions/${id}`);
+}
+
 function addPayee(payee: string){
     if(payee){
         const payeeEntry = payees.get(payee);
@@ -151,12 +193,38 @@ function importBudget(budgetId: number, month: string, categoryId: number, budge
     budgets.set(budgetId, budget);
     return budget;
 };
+/**
+ * Create Budget and make sure the database is up to date
+ */
+async function addBudget(month: Month, category: Category){
+    const budgetJson = {
+        month: month.getString(),
+        categoryId: category.id,
+        budgeted: 0
+    };
+    await api.post("/budgets/", budgetJson).then((budgetRes: any)=>{
+        const id = budgetRes.data[0].id;
+        assert(id);
+        const budget = new Budget(id, month, category, 0);
+        budgets.set(id, budget);
+    });
+}
+
+
+
 
 export function getTransactions(depositId: number): Transaction[]{
     const deposit = deposits.get(Number(depositId));
     assert(deposit);
     return deposit.getTransactions();
 }
+export function getTransactionsSorted(depositId: number): Transaction[]{
+    const deposit = deposits.get(depositId);
+    assert(deposit, "No deposit found");
+    const transactions = deposit.getTransactions();
+    return transactions.sort(Transaction.sortByDate);
+}
+
 export function getCategories(): Category[]{
     return Array.from(categories.values());
 }
@@ -176,4 +244,38 @@ export function getPayees(): string[] {
         return b.frequency - a.frequency;
     })
     return payeesArraySortedByFrequency.map((entry: any) => { return entry.payee });
+}
+
+
+export async function ensureBudgets(month: Month){
+    const monthBudgets: Budget[] = [];
+    budgets.forEach((budget: Budget) => {
+        if(budget.month.equals(month)){
+            monthBudgets.push(budget);
+        }
+    })
+    const addPromises: Promise<void>[] = []
+    categories.forEach(async (category: Category) => {
+        // If category can find no budget that represents it, create a new budget with that category
+        if(monthBudgets.every((monthBudget: Budget)=>{
+            return monthBudget.category !== category;
+        })){
+            addPromises.push(addBudget(month, category));
+        }
+    })
+    return Promise.all(addPromises);
+}
+
+/**
+ * Get budgets for a specific month, if not all budgets have been created, new budgets will be made and synced with db
+ * @param month
+ */
+export function getBudgets(month: Month): Budget[]{
+    const monthBudgets: Budget[] = [];
+    budgets.forEach((budget: Budget) => {
+        if(budget.month.equals(month)){
+            monthBudgets.push(budget);
+        }
+    })
+    return monthBudgets;
 }

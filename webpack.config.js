@@ -2,6 +2,8 @@ var path = require('path')
 var webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+var MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 const webpackConfig = {
   target: 'node'
 };
@@ -15,30 +17,6 @@ module.exports = {
   mode: 'development',
   module: {
     rules: [
-      {
-        test: /\.s(c|a)ss$/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          {
-            loader: 'sass-loader',
-            // Requires sass-loader@^7.0.0
-            options: {
-              implementation: require('sass'),
-              fiber: require('fibers'),
-              indentedSyntax: true // optional
-            },
-            // Requires sass-loader@^8.0.0
-            options: {
-              implementation: require('sass'),
-              sassOptions: {
-                fiber: require('fibers'),
-                indentedSyntax: true // optional
-              },
-            },
-          },
-        ],
-      },
       {
         test: /\.vue$/,
         loader: 'vue-loader',
@@ -54,6 +32,13 @@ module.exports = {
         }
       },
       {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      },
+      {
         test: /\.tsx?$/,
         loader: 'ts-loader',
         exclude: /node_modules/,
@@ -67,13 +52,6 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
-      },
-      {
-        test: /\.css$/,
-        use: [
-          'vue-style-loader',
-          'css-loader'
-        ]
       },
       {
         test: /\.(woff2?|eot|ttf|otf)$/,

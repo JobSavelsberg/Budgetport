@@ -1,9 +1,9 @@
 <template>
 
   <v-app id="app">
-    <v-navigation-drawer v-model="drawer" app clipped>
+    <v-navigation-drawer class="test" v-model="drawer" app clipped>
       <v-list dense>
-        <v-list-item link>
+        <v-list-item link @click="view='dashboard'">
           <v-list-item-action>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
@@ -11,7 +11,7 @@
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link>
+        <v-list-item link @click="view='budgets'">
           <v-list-item-action>
             <v-icon>mdi-briefcase</v-icon>
           </v-list-item-action>
@@ -19,7 +19,7 @@
             <v-list-item-title>Budgets</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link>
+        <v-list-item link @click="view='transactions'">
           <v-list-item-action>
             <v-icon>mdi-receipt</v-icon>
           </v-list-item-action>
@@ -27,7 +27,7 @@
             <v-list-item-title>Transactions</v-list-item-title>
           </v-list-item-content>
         </v-list-item> 
-        <v-list-item link>
+        <v-list-item link @click="view='settings'">
           <v-list-item-action>
             <v-icon>mdi-cog</v-icon>
           </v-list-item-action>
@@ -58,7 +58,11 @@
           ></v-progress-circular>
         </v-flex>
       </v-layout>
-      <TransactionTable :deposit-id="depositId" v-else/>
+      <Dashboard v-if="isLoading === false && view==='dashboard'" />
+      <Budgets v-if="isLoading === false && view==='budgets'" />
+      <Transactions v-if="isLoading === false && view==='transactions'" />
+      <Settings v-if="isLoading === false && view==='settings'" />
+
     </v-main>
 
     <v-footer app>
@@ -68,8 +72,12 @@
 </template>
 
 <script>
-import TransactionTable from "./components/TransactionTable.vue"
 import {init} from "./app/app";
+
+import Dashboard from "./views/Dashboard.vue"
+import Transactions from "./views/Transactions.vue"
+import Budgets from "./views/Budgets.vue"
+import Settings from "./views/Settings.vue"
 
 export default {
   props: {
@@ -80,7 +88,7 @@ export default {
       drawer: null,
       isLoading: true,
       failedToLoad: false,
-      depositId: 1
+      view: "dashboard"
     }
   },
   beforeCreate() {
@@ -93,17 +101,18 @@ export default {
   },
   created () {
     console.log("created()");
-    this.$vuetify.theme.dark = true
   },
   destroyed(){
     console.log("bye");
   },
   components: {
-    TransactionTable
+    Dashboard,
+    Transactions,
+    Budgets,
+    Settings,
   }
 }
 </script>
 
 <style>
-
 </style>

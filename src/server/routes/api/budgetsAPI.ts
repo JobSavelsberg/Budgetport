@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
     const b = req.body;
     console.log(b);
     pool.query(`INSERT INTO budgets( user_id, month, category_id, budgeted )
-        VALUES($1, $2, $3, $5)
+        VALUES($1, $2, $3, $4)
         RETURNING id;`,
     [userId, b.month, b.categoryId, b.budgeted],
     (error, results) => {

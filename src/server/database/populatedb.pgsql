@@ -5,7 +5,7 @@ VALUES(1, 'Fixed Expenses', 'Groceries', '2196F3');
 INSERT INTO categories( user_id, category_group, category, color )
 VALUES(1, 'Fun', 'Music', 'EF6C00');
 INSERT INTO categories( user_id, category_group, category, color )
-VALUES(1, 'Investing', 'Meesman', 'CDDC39');
+VALUES(1, 'Investing', 'Meesman', 'ABBA39');
 INSERT INTO categories( user_id, category_group, category, color )
 VALUES(1, 'Fixed Expenses', 'Rent', '795548');
 
@@ -33,3 +33,15 @@ INSERT INTO budgets( user_id, month, category_id, budgeted )
 VALUES(1, '2020-4', 5, 400);
 INSERT INTO budgets( user_id, month, category_id, budgeted )
 VALUES(1, '2020-4', 4, 100);
+INSERT INTO budgets( user_id, month, category_id, budgeted )
+VALUES(1, '2020-5', 3, 500);
+INSERT INTO budgets( user_id, month, category_id, budgeted )
+VALUES(1, '2020-6', 5, 600);
+INSERT INTO budgets( user_id, month, category_id, budgeted )
+VALUES(1, '2020-7', 4, 400);
+INSERT INTO budgets( user_id, month, category_id, budgeted )
+VALUES(1, '2020-8', 3, 500);
+INSERT INTO budgets( user_id, month, category_id, budgeted )
+VALUES(1, '2020-8', 5, 600);
+INSERT INTO budgets( user_id, month, category_id, budgeted )
+VALUES(1, '2020-8', 4, 400);

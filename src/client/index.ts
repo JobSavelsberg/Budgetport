@@ -12,6 +12,7 @@ const vuetify = new Vuetify({
     iconfont: "mdi"
   },
   theme: {
+    dark: true,
     themes: {
       light: {
         primary: colors.red.darken1, // #E53935
@@ -19,8 +20,8 @@ const vuetify = new Vuetify({
         accent: colors.indigo.base, // #3F51B5
       },
       dark: {
-        primary: colors.red.darken1, // #E53935
-        secondary: colors.red.lighten4, // #FFCDD2
+        primary: colors.teal.darken1, // #E53935
+        secondary: colors.amber.darken2, // #FFCDD2
         accent: colors.indigo.base, // #3F51B5
         warning: colors.orange.base,
       }

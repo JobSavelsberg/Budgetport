@@ -63,6 +63,9 @@ export class Transaction{
     public getInflow(): number{ return this.inflow; }
     public getOutflow(): number{ return this.outflow; }
 
+    public static sortByDate(a: Transaction, b: Transaction): number{
+        return Math.sign((b.getDate().day + b.getDate().month*32 + b.getDate().year*13*32) - (a.getDate().day + a.getDate().month*32 + a.getDate().year*13*32));
+    }
 }
 
 

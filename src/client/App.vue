@@ -115,4 +115,14 @@ export default {
 </script>
 
 <style>
+.numberInput input[type=number] {
+    -moz-appearance:textfield;
+}
+.numberInput input[type=number]::-webkit-inner-spin-button, 
+.numberInput input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0; 
+}
 </style>

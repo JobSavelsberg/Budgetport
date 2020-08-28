@@ -1,11 +1,11 @@
 <template>
     <v-data-table
-        :loading="loading"
+      :loading="loading"
       :headers="headers"
       :items="budgets"
       group-by="categoryGroupName"
       item-key="categoryId"
-      class="elevation-1"
+      class="budgetTable elevation-1"
     >
         <template v-slot:group.header="{items, isOpen, toggle}">
             <th :colspan="headers.length" class="groupHeader">
@@ -15,30 +15,29 @@
                 {{ items[0].categoryGroupName }}
             </th>
         </template>
-        <template v-slot:item="{ item }">
-        <tr>
-            <td><v-chip :color="item.categoryColor">{{ item.categoryName }}</v-chip></td>
-            <td>{{ item.goal }}</td>
-            <td>
-                <v-chip color="success" dark outlined>
-                    <v-edit-dialog :return-value.sync="item.budgeted" @save="save" @cancel="cancel" @open="open" @close="close" >
-                    {{ item.budgeted }}
-                    <template v-slot:input>
-                        <v-text-field v-model="item.budgeted" label="Edit" type="number" single-line counter></v-text-field>
-                    </template>
-                    </v-edit-dialog>
-                </v-chip>
-            </td>
-            <td>{{ item.activity }}</td>
-            <td>{{ item.available }}</td>
-        </tr>
-      </template>
+        
+        <template v-slot:item.category="{ item }">
+          <v-chip :color="item.categoryColor">{{ item.categoryName }}</v-chip>
+        </template>
+
+        <template v-slot:item.budgeted="{ item }">
+          <MoneyChip chip-color="success" v-model="item.budgeted" @change="updated(item.budgeted)"/>
+        </template>
+
+        <template v-slot:item.activity="{ item }">
+          <MoneyChip no-edit chip-color="info" :value="item.activity"/>
+        </template>
+
+        <template v-slot:item.available="{ item }">
+          <MoneyChip no-edit chip-color="info" :value="item.available"/>
+        </template>
     </v-data-table>
 </template>
 
 <script>
 import {getBudgets, ensureBudgets} from "../app/db"
 import {Month} from "../app/objects/budget"
+import MoneyChip from "./MoneyChip.vue"
 
 export default {
   data () {
@@ -46,16 +45,11 @@ export default {
         loading: true,
         month: Month.now(),
         headers: [
-            {
-            text: 'Category',
-            align: 'start',
-            sortable: false,
-            value: 'categoryName',
-            },
-            { text: 'Goal', value: 'goal',align: 'right' },
-            { text: 'Budgeted', value: 'budgeted', align: 'right'},
-            { text: 'Activity', value: 'activity',align: 'right' },
-            { text: 'Available', value: 'available',align: 'right' },
+            {text: 'Category', align: 'start',  sortable: false, value: 'categoryName', width: "60%" },
+            { text: 'Goal', value: 'goal',align:'right',width: "10%"  },
+            { text: 'Budgeted', value: 'budgeted',align:'right',width: "10%" },
+            { text: 'Activity', value: 'activity',align:'right',width: "10%"  },
+            { text: 'Available', value: 'available', align:'right',width: "10%" },
         ],
         budgets: [],
     }
@@ -67,6 +61,9 @@ export default {
     })
   },
   methods:{
+    updated(value){
+      console.log(value);
+    },
     save () {
       console.log('save')
     },
@@ -79,6 +76,9 @@ export default {
     close () {
       console.log('close')
     },
+  },
+  components: {
+    MoneyChip
   }
 }
 </script>
@@ -86,5 +86,8 @@ export default {
 <style>
 .groupHead{
     background-color: #111111;
+}
+.budgetTable{
+  table-layout : fixed;
 }
 </style>

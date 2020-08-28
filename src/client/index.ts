@@ -5,7 +5,13 @@ import colors from 'vuetify/lib/util/colors'
 
 Vue.config.productionTip = false;
 
-Vue.use(Vuetify);
+Vue.use(Vuetify, {
+  options: {
+    customProperties: true
+  }
+});
+
+
 
 const vuetify = new Vuetify({
   icons: {
@@ -20,7 +26,7 @@ const vuetify = new Vuetify({
         accent: colors.indigo.base, // #3F51B5
       },
       dark: {
-        primary: colors.teal.darken1, // #E53935
+        primary: colors.grey.base, // #E53935
         secondary: colors.amber.darken2, // #FFCDD2
         accent: colors.indigo.base, // #3F51B5
         warning: colors.orange.base,

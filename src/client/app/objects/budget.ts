@@ -42,6 +42,8 @@ export class Budget{
         this.month = month;
         this.category = category;
         this.budgeted = budgeted;
+        this.activity = 0;
+        this.available= 0;
     }
 
     public json(): any{
@@ -53,6 +55,7 @@ export class Budget{
             categoryName: this.category.name,
             categoryGroupName: this.category.group.name,
             categoryColor: this.category.color,
+            goal: 0,
             budgeted: this.budgeted,
             activity: this.activity,
             available: this.available

@@ -2,6 +2,7 @@ import { getEnabledCategories } from "trace_events";
 import { Color } from "vuetify/lib/util/colors";
 
 export class CategoryGroup{
+    id: number;
     name: string;
     categories: Category[];
 
@@ -30,6 +31,7 @@ export class Category{
         }
         this.color = color;
     }
+
 
     public json(): any{
         return {

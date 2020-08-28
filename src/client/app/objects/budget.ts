@@ -1,4 +1,5 @@
 import { Category, CategoryGroup } from "./category";
+import { Transaction } from "./transaction";
 
 export class Month{
     year: number;
@@ -34,16 +35,47 @@ export class Budget{
     month: Month;
     category: Category;
     budgeted: number;
-    activity: number;
-    available: number;
 
     constructor(id: number, month: Month, category: Category, budgeted: number){
         this.id = id;
         this.month = month;
         this.category = category;
         this.budgeted = budgeted;
-        this.activity = 0;
-        this.available= 0;
+    }
+
+    public getActivity(allTransactions: Transaction[]): number{
+        let activity = 0;
+        this.getActivityTransactions(allTransactions).forEach((transaction: Transaction) => {
+            activity += transaction.inflow - transaction.outflow;
+        });
+        console.log("activity", activity);
+        return activity;
+    }
+
+    public getActivityTransactions(allTransactions: Transaction[]): Transaction[]{
+        return allTransactions.filter((transaction: Transaction) => { 
+            return transaction.getDate().year === this.month.year && 
+                transaction.getDate().month === this.month.month && 
+                transaction.getCategory() === this.category;
+        })
+    }
+
+    public getAvailable(budgets: Budget[], allTransactions: Transaction[]): number{
+        let available = 0;
+        budgets.forEach((budget:Budget) => {
+            if(budget.category === this.category && budget.month.year <= this.month.year && budget.month.month <= this.month.month){
+                available += Number(budget.budgeted);
+            }
+        })
+        allTransactions.forEach((transaction: Transaction) => { 
+            if(transaction.getDate().year <= this.month.year && 
+                transaction.getDate().month <= this.month.month && 
+                transaction.getCategory() === this.category){
+                available += Number(transaction.inflow) - Number(transaction.outflow);
+            }
+        })
+        console.log("available", available);
+        return available;
     }
 
     public json(): any{
@@ -56,9 +88,24 @@ export class Budget{
             categoryGroupName: this.category.group.name,
             categoryColor: this.category.color,
             goal: 0,
-            budgeted: this.budgeted,
-            activity: this.activity,
-            available: this.available
+            budgeted: Number(this.budgeted),
+            activity: 0,
+            available: 0,
+        }
+    }
+    public jsonFull(allTransactions: Transaction[], budgets: Budget[]): any{
+        return {
+            id: this.id,
+            year: this.month.year,
+            month: this.month.month,
+            categoryId: this.category.id,
+            categoryName: this.category.name,
+            categoryGroupName: this.category.group.name,
+            categoryColor: this.category.color,
+            goal: 0,
+            budgeted: Number(this.budgeted),
+            activity: Number(this.getActivity(allTransactions)),
+            available: Number(this.getAvailable(budgets, allTransactions))
         }
     }
 }

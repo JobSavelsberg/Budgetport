@@ -1,5 +1,5 @@
 <template>
-  <v-data-table :headers="headers" :items="getTransactions" :items-per-page="20" class="elevation-1" multi-sort v-on:transactionChange :loading="loading">
+  <v-data-table :headers="headers" :items="getTransactions" :items-per-page="20" class="elevation-1 transactionTable" multi-sort v-on:transactionChange :loading="loading">
     <template v-slot:body.prepend="{ headers }" >
       <tr>
         <td>
@@ -73,17 +73,10 @@
       <v-chip :color="getCategory(item.categoryId).getColor()" dark>{{ getCategory(item.categoryId).getName()}}</v-chip>
     </template>
     <template v-slot:item.inflow="{ item }">
-      <v-chip v-if="item.inflow>0" color="success" dark outlined>{{ item.inflow }}</v-chip>
+      <MoneyChip v-if="item.inflow>0" v-model="item.inflow" chip-color="success" @change="updated(item)"/>
     </template>
     <template v-slot:item.outflow="{ item }">
-      <v-chip v-if="item.outflow>0" color="warning" dark outlined>
-        <v-edit-dialog :return-value.sync="item.outflow" @save="save" @cancel="cancel" @open="open" @close="close" >
-          {{ item.outflow }}
-          <template v-slot:input>
-              <v-text-field v-model="item.outflow" label="Edit" type="number" single-line counter></v-text-field>
-          </template>
-        </v-edit-dialog>
-      </v-chip>
+      <MoneyChip v-if="item.outflow>0" v-model="item.outflow" chip-color="warning" @change="updated(item)"/>
     </template>
     <template v-slot:item.actions="{ item }">
       <v-icon @click="editItem(item)">
@@ -100,6 +93,7 @@
 import Vue from 'vue';
 import app from "../app/app"
 import {getTransactionsSorted, getCategory,getCategories, getPayees, addTransaction, deleteTransaction} from "../app/db"
+import MoneyChip from "./MoneyChip.vue"
 
 export default {
   props: [
@@ -122,13 +116,13 @@ export default {
         value => !isNaN(value) || 'Not a number',
       ],
       headers: [
-        { text: 'Date', value: 'date',  },
-        { text: 'Payee', value: 'payee' },
-        { text: 'Category', value: 'categoryId' },
-        { text: 'Memo', value: 'memo' },
-        { text: 'Inflow', value: 'inflow', align: 'right'},
-        { text: 'Outflow', value: 'outflow', align: 'right' },
-        {text: 'Actions', value: 'actions', sortable: false}
+        { text: 'Date', value: 'date', width: '8%' },
+        { text: 'Payee', value: 'payee',width: '15%' },
+        { text: 'Category', value: 'categoryId',width: '15%' },
+        { text: 'Memo', value: 'memo',width: '50%' },
+        { text: 'Inflow', value: 'inflow', align: 'right',width: '5%'},
+        { text: 'Outflow', value: 'outflow', align: 'right',width: '5%' },
+        {text: 'Actions', value: 'actions', sortable: false,width: '5%'}
       ],
       transactions: []
     }
@@ -179,6 +173,9 @@ export default {
         this.loading = false;
       });
     },
+    updated(item){
+      console.log("updated", item)
+    },
     save () {
       console.log('save')
     },
@@ -202,10 +199,15 @@ export default {
         this.transactions.splice(index,1);
       });
     }
+  },
+  components: {
+    MoneyChip
   }
 }
 </script>
 
 <style>
-
+.transactionTable{
+  table-layout : fixed;
+}
 </style>

@@ -279,3 +279,11 @@ export function getBudgets(month: Month): Budget[]{
     })
     return monthBudgets;
 }
+
+export function getAllTransactions(): Transaction[]{
+    return Array.from(allTransactions.values());
+}
+
+export function getAllBudgets(): Budget[]{
+    return Array.from(budgets.values());
+}

@@ -8,34 +8,50 @@
       class="budgetTable elevation-1"
     >
         <template v-slot:group.header="{items, isOpen, toggle}">
-            <th :colspan="headers.length" class="groupHeader">
-            <v-icon @click="toggle"
-                >{{ isOpen ? 'mdi-menu-down' : 'mdi-menu-right' }}
-            </v-icon>
-                {{ items[0].categoryGroupName }}
-            </th>
+            <td class="groupRow">
+            <v-icon @click="toggle">{{ isOpen ? 'mdi-menu-down' : 'mdi-menu-right' }}</v-icon>
+            <span class="text--subtitle-2">{{ items[0].categoryGroupName }}</span>
+            <v-btn class="mx-2 categoryAdd" fab dark x-small color="primary"><v-icon dark>mdi-plus</v-icon></v-btn>
+            </td>
+            <td class="groupRow ">
+            </td>
+            <td class="groupRow">
+              <MoneyChip no-edit="true" chip-color="success" v-model="getCategoryGroupBudget(items).budgeted"/>
+            </td>
+            <td class="groupRow">
+              <MoneyChip no-edit="true" chip-color="info" v-model="getCategoryGroupBudget(items).activity"/>
+            </td>
+            <td class="groupRow">
+              <MoneyChip no-edit="true" chip-color="warning" v-model="getCategoryGroupBudget(items).available"/>
+            </td>
         </template>
         
-        <template v-slot:item.category="{ item }">
-          <v-chip :color="item.categoryColor">{{ item.categoryName }}</v-chip>
+        <template v-slot:item.categoryName="{ item }">
+          <div>
+          <v-chip :color="item.categoryColor" dark>{{ item.categoryName }}</v-chip>
+          </div>
+        </template>
+
+        <template v-slot:item.goal="{ item }">
+          <MoneyChip chip-color="info" v-model="item.goal" @change="updated(item)"/>
         </template>
 
         <template v-slot:item.budgeted="{ item }">
-          <MoneyChip chip-color="success" v-model="item.budgeted" @change="updated(item.budgeted)"/>
+          <MoneyChip chip-color="success" v-model="item.budgeted" @change="updated(item)"/>
         </template>
 
         <template v-slot:item.activity="{ item }">
-          <MoneyChip no-edit chip-color="info" :value="item.activity"/>
+          <MoneyChip no-edit="true" chip-color="info" :value="item.activity"/>
         </template>
 
         <template v-slot:item.available="{ item }">
-          <MoneyChip no-edit chip-color="info" :value="item.available"/>
+          <MoneyChip no-edit="true" chip-color="warning" :value="item.available"/>
         </template>
     </v-data-table>
 </template>
 
 <script>
-import {getBudgets, ensureBudgets} from "../app/db"
+import {getBudgets, getAllTransactions, getAllBudgets, ensureBudgets} from "../app/db"
 import {Month} from "../app/objects/budget"
 import MoneyChip from "./MoneyChip.vue"
 
@@ -45,22 +61,43 @@ export default {
         loading: true,
         month: Month.now(),
         headers: [
-            {text: 'Category', align: 'start',  sortable: false, value: 'categoryName', width: "60%" },
-            { text: 'Goal', value: 'goal',align:'right',width: "10%"  },
-            { text: 'Budgeted', value: 'budgeted',align:'right',width: "10%" },
-            { text: 'Activity', value: 'activity',align:'right',width: "10%"  },
-            { text: 'Available', value: 'available', align:'right',width: "10%" },
+            {text: 'Category', align: 'start',  sortable: false, value: 'categoryName', width: "40%" },
+            { text: 'Goal', value: 'goal',align:'right',width: "15%"  },
+            { text: 'Budgeted', value: 'budgeted',align:'right',width: "15%" },
+            { text: 'Activity', value: 'activity',align:'right',width: "15%"  },
+            { text: 'Available', value: 'available', align:'right',width: "15%" },
         ],
         budgets: [],
+        toBeBudgeted: {},
     }
   },
   mounted(){
     ensureBudgets(this.month).then(()=>{
-        this.budgets = getBudgets(this.month).map((budget) => {return budget.json()});
-        this.loading = false;
+      const monthBudgets = getBudgets(this.month);
+      const toBeBudgeted = monthBudgets.find((budget) => {
+        return budget.category.name === 'To Be Budgeted';
+      });
+      const index = monthBudgets.indexOf(toBeBudgeted);
+      monthBudgets.splice(index, 1);
+      this.toBeBudgeted = toBeBudgeted.json();
+      console.log("tbb", this.toBeBudgeted);
+
+      this.budgets = monthBudgets.map((budget) => {
+        return budget.jsonFull(getAllTransactions(),getAllBudgets())
+      });
+      this.loading = false;
+      console.log(this.budgets);
     })
   },
   methods:{
+    getCategoryGroupBudget(budgets){
+      const groupBudget = {
+        budgeted: 0,
+        activity: 0,
+        available: 0
+      }
+      return groupBudget;
+    },
     updated(value){
       console.log(value);
     },
@@ -84,10 +121,13 @@ export default {
 </script>
 
 <style>
-.groupHead{
-    background-color: #111111;
+.groupRow{
+  background-color:#333333;
 }
 .budgetTable{
   table-layout : fixed;
+}
+.categoryAdd{
+  margin-left: 5%;
 }
 </style>

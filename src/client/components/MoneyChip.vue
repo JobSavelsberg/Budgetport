@@ -1,17 +1,7 @@
-<!--<template>
-    <v-chip :color="chipColor" dark outlined>
-        <v-edit-dialog :return-value.sync="value" @save="save" @cancel="cancel" @open="open" @close="close" >
-        {{ value }}
-            <template v-slot:input>
-                <v-text-field v-model="value" label="Edit" type="number" single-line counter class="numberInput"></v-text-field>
-            </template>
-        </v-edit-dialog>
-    </v-chip>
-</template>-->
 <template>
     <div class="moneyChip">
         <v-spacer></v-spacer>
-        <v-chip v-if="editing === false" @click="editing=true" :color="chipColor" dark outlined>{{value}}</v-chip>
+        <v-chip v-if="editing === false || noEdit" @click="clickedChip" :color="color" :text-color="chipColor" dark :outlined="outlined">{{value}}</v-chip>
         <v-text-field v-else autofocus @focus="focused" :readonly="noEdit" v-click-outside="finishInput" @keydown.enter="finishInput" :suffix="moneyPrefix" :color="chipColor" v-model="editableValue" type="number" class="moneyInput numberInput shrink"
  solo rounded outlined dense single-line placeholder="0" hide-details reverse>{{editableValue}}</v-text-field>
     </div>
@@ -26,14 +16,22 @@ export default {
     ],
     data () {
         return {
-            moneyPrefix:"",
+            moneyPrefix:"",//€$
             editableValue: JSON.parse(this.value),
             editing: false,
+            outlined: true,
         }
     },
     computed: {
+        color(){
+            return this.outlined ? this.chipColor : '#1a1a1a';
+        },
     },
     methods:{
+        clickedChip(){
+            console.log(this.noEdit);
+            if(!this.noEdit) this.editing = true;
+        },
         focused(){
             console.log("focused");
         },

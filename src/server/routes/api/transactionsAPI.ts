@@ -25,6 +25,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     const userId = req.query.userId;
     const b = req.body;
+    console.log(b);
     pool.query(`INSERT INTO transactions( user_id, deposit_id, date, payee, category_id, memo, inflow, outflow )
         VALUES($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id;`,

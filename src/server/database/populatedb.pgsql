@@ -1,5 +1,5 @@
 INSERT INTO categories( user_id, category_group, category, color )
-VALUES(1, 'To Be Budgeted', 'To Be Budgeted', '4CAF50');
+VALUES(1, 'Inflow', 'To be Budgeted', '4CAF50');
 INSERT INTO categories( user_id, category_group, category, color )
 VALUES(1, 'Fixed Expenses', 'Groceries', '2196F3');
 INSERT INTO categories( user_id, category_group, category, color )

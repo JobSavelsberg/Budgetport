@@ -2,6 +2,35 @@ import Vue from "vue";
 import App from "./App.vue";
 import Vuetify from "vuetify";
 import colors from 'vuetify/lib/util/colors'
+import numeral from 'numeral'
+// load a locale
+const nlFormat: NumeralJSLocale = {
+  delimiters: {
+    thousands: '.',
+    decimal: ','
+  },
+  abbreviations: {
+    thousand: 'K',
+    million: 'M',
+    billion: 'B',
+    trillion: 'T'
+  },
+  ordinal: function (number) {
+    return number === 1 ? 'euro' : 'euro\'s'
+  },
+  currency: {
+    symbol: '€'
+  }
+};
+
+numeral.register('locale', 'nl', nlFormat);
+
+// switch between locales
+numeral.locale('nl')
+
+Vue.filter('formatNumberMoney', function (value: number) {
+  return numeral(value).format('0,0.00')
+})
 
 Vue.config.productionTip = false;
 

@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
     const b = req.body;
     console.log(b);
     pool.query(`INSERT INTO categories( user_id, category_group, category, color)
-        VALUES($1, $2, $3)
+        VALUES($1, $2, $3, $4)
         RETURNING id;`,
     [userId, b.categoryGroup, b.category, b.color],
     (error, results) => {

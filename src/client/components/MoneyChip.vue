@@ -1,7 +1,7 @@
 <template>
     <div class="moneyChip">
         <v-spacer></v-spacer>
-        <v-chip v-if="editing === false || noEdit" @click="clickedChip" :color="color" :text-color="chipColor" dark :outlined="outlined">{{value}}</v-chip>
+        <v-chip v-if="editing === false || noEdit" @click="clickedChip" :color="color" :text-color="chipColor" dark :outlined="outlined">{{value | formatNumberMoney}}</v-chip>
         <v-text-field v-else autofocus @focus="focused" :readonly="noEdit" v-click-outside="finishInput" @keydown.enter="finishInput" :suffix="moneyPrefix" :color="chipColor" v-model="editableValue" type="number" class="moneyInput numberInput shrink"
  solo rounded outlined dense single-line placeholder="0" hide-details reverse>{{editableValue}}</v-text-field>
     </div>

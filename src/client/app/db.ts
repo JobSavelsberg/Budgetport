@@ -61,7 +61,7 @@ export async function load(){
         const getTransactions = api.get("/transactions/").then((transactionsRes: any)=>{
             const transactionsData = transactionsRes.data;
             transactionsData.forEach((t: any) => {
-                importTransaction(t.id, t.deposit_id, t.date, t.payee, t.category_id, t.memo, t.inflow, t.outflow);
+                importTransaction(t.id, t.deposit_id, t.date, t.payee, t.category_id, t.memo, Number(t.inflow), Number(t.outflow));
             });
         });
         const getBudgets = api.get("/budgets/").then((budgetsRes: any)=>{
@@ -104,6 +104,41 @@ function importCategory(id: number, groupName: string, name: string, color: stri
     }
     return category;
 };
+async function ensureCategory(categoryGroupName: string, categoryName: string): Promise<Category>{
+    for(const categoryGroup of categoryGroups){
+        if(categoryGroupName === categoryGroup.name){
+            for(const category of categoryGroup.categories){
+                if(categoryName === category.name) return category;
+            }
+            return addCategory(categoryGroupName, categoryName, categoryGroup);
+        }
+    }
+    return addCategory(categoryGroupName, categoryName);
+}
+
+async function addCategory(categoryGroupName: string, categoryName: string, categoryGroup?: CategoryGroup){
+    const color = Category.getRandomColor().substring(1);
+    const categoryJson = {
+        categoryGroup: categoryGroupName,
+        category: categoryName,
+        color: color
+    };
+    return api.post("/categories/", categoryJson).then((categoryRes: any): Category=>{
+        const id = categoryRes.data[0].id;
+        assert(id);
+        let category;
+        if(categoryGroup){
+            category = new Category(id, categoryName, categoryGroup, color);
+        }else{
+            categoryGroup = new CategoryGroup(categoryGroupName);
+            categoryGroups.push(categoryGroup);
+            category = new Category(id, categoryName, categoryGroup, color);
+        }
+        categoryGroup.addCategory(category);
+        categories.set(id, category);
+        return category;
+    });
+}
 
 /*
 *  Create Deposit retrieved from db and add it to the list of deposits
@@ -113,7 +148,26 @@ function importDeposit(id: number, name: string): Deposit{
     deposits.set(id, deposit);
     return deposit;
 };
-
+async function ensureDeposit(depositName: string): Promise<Deposit>{
+    let ensuredDeposit;
+    deposits.forEach((deposit:Deposit) => {
+        if(depositName === deposit.name) ensuredDeposit = deposit;
+    })
+    if(ensuredDeposit) return ensuredDeposit;
+    return addDeposit(depositName);
+}
+async function addDeposit(name: string): Promise<Deposit>{
+    const depositJson = {
+        name: name,
+    };
+    return api.post("/deposits/", depositJson).then((depositRes: any): Deposit=>{
+        const id = depositRes.data[0].id;
+        assert(id);
+        const deposit = new Deposit(id, name);
+        deposits.set(id, deposit);
+        return deposit;
+    });
+}
 /*
 *  Create Transaction retrieved from db and add it to the list of transactions
 */
@@ -131,6 +185,20 @@ function importTransaction(id: number, deposit_id: number, date: string, payee: 
         throw new Error(`Category does not exist on transaction with id: ${id}, category id: ${category_id}`);
     }
 };
+
+export async function addTransactionFromStrings(deposit: string, date: string, payee: string, categoryGroup: string, category: string, memo: string, inflow: string, outflow: string){
+    console.log(deposit, date, payee, categoryGroup, category, memo, inflow, outflow);
+    return Promise.all([ensureDeposit(deposit), ensureCategory(categoryGroup, category)]).then(([deposit, category]) => {
+        assert(deposit.id);
+        assert(category.id);
+        console.log(inflow);
+        console.log(outflow)
+        const inflowNumber = parseFloat(inflow.replace(',','.').replace(' ',''));
+        const outflowNumber = parseFloat(outflow.replace(',','.').replace(' ',''));
+        addTransaction(deposit.id, date, payee, category.id, memo, inflowNumber, outflowNumber);
+    });
+}
+
 /**
  * Create Transaction and make sure the database is up to date
  */
@@ -138,7 +206,7 @@ export async function addTransaction(deposit_id: number, date: string, payee: st
     const deposit = deposits.get(deposit_id);
     const category = categories.get(category_id);
     if(deposit && category){
-        if(inflow && outflow) throw new Error('Both inflow and outflow are set');
+        if(inflow > 0 && outflow > 0) throw new Error('Both inflow and outflow are set');
         const transaction = {
             depositId: deposit.id,
             date: date,
@@ -210,9 +278,6 @@ async function addBudget(month: Month, category: Category){
     });
 }
 
-
-
-
 export function getTransactions(depositId: number): Transaction[]{
     const deposit = deposits.get(Number(depositId));
     assert(deposit);
@@ -245,6 +310,8 @@ export function getPayees(): string[] {
     })
     return payeesArraySortedByFrequency.map((entry: any) => { return entry.payee });
 }
+
+
 
 
 export async function ensureBudgets(month: Month){

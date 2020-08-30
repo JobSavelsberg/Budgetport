@@ -75,7 +75,7 @@ export default {
     ensureBudgets(this.month).then(()=>{
       const monthBudgets = getBudgets(this.month);
       const toBeBudgeted = monthBudgets.find((budget) => {
-        return budget.category.name === 'To Be Budgeted';
+        return budget.category.name === 'To be Budgeted';
       });
       const index = monthBudgets.indexOf(toBeBudgeted);
       monthBudgets.splice(index, 1);

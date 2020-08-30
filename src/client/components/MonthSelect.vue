@@ -47,6 +47,7 @@ export default {
     ],
     data () {
         return {
+            menu: false,
             date: "2020-1",
             year: 2020,
             month: 1,

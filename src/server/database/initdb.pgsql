@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     , payee varchar(50) NULL 
     , category_id INT NOT NULL
     , FOREIGN KEY(category_id) REFERENCES categories(id)
-    , memo varchar(50) NULL
+    , memo varchar(128) NULL
     , inflow decimal(15,2) NULL
     , outflow decimal(15,2) NULL
 );

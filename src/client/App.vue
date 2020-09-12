@@ -36,6 +36,10 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+      
+      <v-footer inset app>
+        <div class="caption">Budgetport by Job Savelsberg &copy; {{ new Date().getFullYear() }}</div>
+      </v-footer>
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left>
@@ -65,9 +69,6 @@
 
     </v-main>
 
-    <v-footer app>
-      <div class="caption">Budgetport by Job Savelsberg &copy; {{ new Date().getFullYear() }}</div>
-    </v-footer>
   </v-app>
 </template>
 

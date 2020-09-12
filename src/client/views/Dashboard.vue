@@ -1,4 +1,10 @@
 <template>
+  <v-layout
+        fill-height fluid align-center justify-center column> 
+        <v-flex row align-center>
+         <h1 class="text-h1">Welcome!</h1>
+        </v-flex>
+      </v-layout>
 </template>
 
 <script>

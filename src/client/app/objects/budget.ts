@@ -30,6 +30,10 @@ export class Month{
 
 }
 
+export function currentMonth(): Month{
+    return Month.now();
+}
+
 export class Budget{
     id: number;
     month: Month;
@@ -48,7 +52,6 @@ export class Budget{
         this.getActivityTransactions(allTransactions).forEach((transaction: Transaction) => {
             activity += transaction.inflow - transaction.outflow;
         });
-        console.log("activity", activity);
         return activity;
     }
 
@@ -74,7 +77,6 @@ export class Budget{
                 available += Number(transaction.inflow) - Number(transaction.outflow);
             }
         })
-        console.log("available", available);
         return available;
     }
 

@@ -45,6 +45,14 @@ CREATE TABLE IF NOT EXISTS budgets (
     , budgeted decimal(15,2) NULL
 );
 
+-- Creates prefererences table
+CREATE TABLE IF NOT EXISTS prefererences (
+    id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
+    , user_id varchar(50) NOT NULL
+    , preference_key varchar(50)
+    , preference_value varchar(256)
+);
+
 -- Creates goals table
 CREATE TABLE IF NOT EXISTS goals (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY

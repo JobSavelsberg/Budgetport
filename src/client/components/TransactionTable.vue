@@ -1,6 +1,6 @@
 <template>
   <v-data-table :headers="headers" :items="getTransactions" :items-per-page="20" class="elevation-1 transactionTable" multi-sort v-on:transactionChange :loading="loading">
-    <template v-slot:body.prepend="{ headers }" >
+    <template v-if="headers[0].text !== 'Deposit'" v-slot:body.prepend="{ headers }" >
       <tr>
         <td>
           <v-menu
@@ -127,21 +127,13 @@ export default {
       transactions: []
     }
   },
+  watch: {
+    depositId: 'depositIdChanged'
+  },
   mounted () {
     // TODO: sort on date
-    this.updateTransactions(getTransactionsSorted(this.depositId));
-    if(this.depositId==-1){
-      this.headers.push({
-          text: 'Deposit',
-          align: 'start',
-          sortable: true,
-          value: 'deposit',
-        }
-      );
-    }
-    this.categoryList = getCategories().map((category) => {return category.json()});    
-    this.payeeList = getPayees();
-    this.loading = false;
+    this.refreshDepositTransactions();
+    
   },
   computed:{
     getTransactions(){
@@ -149,6 +141,28 @@ export default {
     }
   },
   methods:{
+    depositIdChanged(newDepositId, oldDepositId){
+      if(oldDepositId === -1){
+        this.headers.shift();
+      }
+      this.refreshDepositTransactions();
+    },
+    refreshDepositTransactions(){
+      this.loading = true;
+      this.updateTransactions(getTransactionsSorted(this.depositId));
+      if(this.depositId==-1){
+        this.headers.unshift({
+            text: 'Deposit',
+            align: 'start',
+            sortable: true,
+            value: 'deposit',
+          }
+        );
+      }
+      this.categoryList = getCategories().map((category) => {return category.json()});    
+      this.payeeList = getPayees();
+      this.loading = false;
+    },
     getCategory(categoryId){
       return getCategory(categoryId);
     },

@@ -103,7 +103,7 @@ function importCategory(id: number, groupName: string, name: string, color: stri
         categoryGroup.addCategory(category);
     }
     return category;
-};
+}
 async function ensureCategory(categoryGroupName: string, categoryName: string): Promise<Category>{
     for(const categoryGroup of categoryGroups){
         if(categoryGroupName === categoryGroup.name){
@@ -147,7 +147,7 @@ function importDeposit(id: number, name: string): Deposit{
     const deposit = new Deposit(id, name);
     deposits.set(id, deposit);
     return deposit;
-};
+}
 async function ensureDeposit(depositName: string): Promise<Deposit>{
     let ensuredDeposit;
     deposits.forEach((deposit:Deposit) => {
@@ -184,15 +184,13 @@ function importTransaction(id: number, deposit_id: number, date: string, payee: 
     }else if(!category){
         throw new Error(`Category does not exist on transaction with id: ${id}, category id: ${category_id}`);
     }
-};
+}
 
 export async function addTransactionFromStrings(deposit: string, date: string, payee: string, categoryGroup: string, category: string, memo: string, inflow: string, outflow: string){
     console.log(deposit, date, payee, categoryGroup, category, memo, inflow, outflow);
     return Promise.all([ensureDeposit(deposit), ensureCategory(categoryGroup, category)]).then(([deposit, category]) => {
         assert(deposit.id);
         assert(category.id);
-        console.log(inflow);
-        console.log(outflow)
         const inflowNumber = parseFloat(inflow.replace(',','.').replace(' ',''));
         const outflowNumber = parseFloat(outflow.replace(',','.').replace(' ',''));
         addTransaction(deposit.id, date, payee, category.id, memo, inflowNumber, outflowNumber);
@@ -254,39 +252,55 @@ function addPayee(payee: string){
 *  Create Budget retrieved from db and add it to the list of budgets
 */
 function importBudget(budgetId: number, month: string, categoryId: number, budgeted: number): Budget{
-    let budget;
     const category = categories.get(categoryId);
     assert(category, `budget contains unknown categoryId: ${categoryId}`);
-    budget = new Budget(budgetId, Month.fromString(month), category, budgeted);
+    const budget = new Budget(budgetId, Month.fromString(month), category, budgeted);
     budgets.set(budgetId, budget);
     return budget;
-};
+}
 /**
  * Create Budget and make sure the database is up to date
  */
-async function addBudget(month: Month, category: Category){
+async function addBudget(month: Month, category: Category, budgeted?: number){
     const budgetJson = {
         month: month.getString(),
         categoryId: category.id,
-        budgeted: 0
+        budgeted: budgeted || 0
     };
     await api.post("/budgets/", budgetJson).then((budgetRes: any)=>{
         const id = budgetRes.data[0].id;
         assert(id);
-        const budget = new Budget(id, month, category, 0);
+        const budget = new Budget(id, month, category, budgeted || 0);
         budgets.set(id, budget);
     });
 }
+export async function addBudgetFromStrings(monthString: string, categoryGroup: string, category: string, budgeted: string){
+    console.log(monthString, categoryGroup, category, budgeted);
+    return ensureCategory(categoryGroup, category).then((category) => {
+        assert(category.id);
+        const parsedBudgeted = parseFloat(budgeted.replace(',','.').replace(' ',''));
+        addBudget(Month.fromString(monthString), category, parsedBudgeted);
+    });
+}
+
 
 export function getTransactions(depositId: number): Transaction[]{
+    if(depositId < 0){
+        return Array.from(allTransactions.values());
+    }
     const deposit = deposits.get(Number(depositId));
     assert(deposit);
     return deposit.getTransactions();
 }
 export function getTransactionsSorted(depositId: number): Transaction[]{
-    const deposit = deposits.get(depositId);
-    assert(deposit, "No deposit found");
-    const transactions = deposit.getTransactions();
+    let transactions;
+    if(depositId < 0){
+        transactions = Array.from(allTransactions.values());
+    }else{
+        const deposit = deposits.get(depositId);
+        assert(deposit, "No deposit found");
+        transactions = deposit.getTransactions();
+    }
     return transactions.sort(Transaction.sortByDate);
 }
 
@@ -353,4 +367,16 @@ export function getAllTransactions(): Transaction[]{
 
 export function getAllBudgets(): Budget[]{
     return Array.from(budgets.values());
+}
+
+export function getDeposits(): Deposit[]{
+    return Array.from(deposits.values());
+}
+
+export function getTotalBalance(): number{
+    let sum = 0;
+    deposits.forEach((deposit: Deposit) => {
+        sum += deposit.getBalance();
+    })
+    return sum;
 }

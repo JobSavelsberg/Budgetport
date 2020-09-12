@@ -27,7 +27,6 @@ export class Transaction{
     }
 
     public json(): any{
-        console.log(this.outflow);
         return {
             id: this.id,
             deposit: this.deposit.name,

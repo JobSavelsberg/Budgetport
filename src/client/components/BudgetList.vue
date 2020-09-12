@@ -6,6 +6,7 @@
       group-by="categoryGroupName"
       item-key="categoryId"
       class="budgetTable elevation-1"
+      :items-per-page="50"
     >
         <template v-slot:group.header="{items, isOpen, toggle}">
             <td class="groupRow">
@@ -56,10 +57,12 @@ import {Month} from "../app/objects/budget"
 import MoneyChip from "./MoneyChip.vue"
 
 export default {
+  props: [
+    'month'
+  ],
   data () {
     return {
         loading: true,
-        month: Month.now(),
         headers: [
             {text: 'Category', align: 'start',  sortable: false, value: 'categoryName', width: "40%" },
             { text: 'Goal', value: 'goal',align:'right',width: "15%"  },
@@ -71,23 +74,11 @@ export default {
         toBeBudgeted: {},
     }
   },
-  mounted(){
-    ensureBudgets(this.month).then(()=>{
-      const monthBudgets = getBudgets(this.month);
-      const toBeBudgeted = monthBudgets.find((budget) => {
-        return budget.category.name === 'To be Budgeted';
-      });
-      const index = monthBudgets.indexOf(toBeBudgeted);
-      monthBudgets.splice(index, 1);
-      this.toBeBudgeted = toBeBudgeted.json();
-      console.log("tbb", this.toBeBudgeted);
-
-      this.budgets = monthBudgets.map((budget) => {
-        return budget.jsonFull(getAllTransactions(),getAllBudgets())
-      });
-      this.loading = false;
-      console.log(this.budgets);
-    })
+  watch: {
+    month: 'monthChanged'
+  },
+  mounted () {
+    this.loadBudgets();
   },
   methods:{
     getCategoryGroupBudget(budgets){
@@ -97,6 +88,27 @@ export default {
         available: 0
       }
       return groupBudget;
+    },
+    monthChanged(newMonth, oldMonth){
+      this.loadBudgets();
+    },
+    loadBudgets(){
+      ensureBudgets(this.month).then(()=>{
+        const monthBudgets = getBudgets(this.month);
+        const toBeBudgeted = monthBudgets.find((budget) => {
+          return budget.category.name === 'To be Budgeted';
+        });
+        const index = monthBudgets.indexOf(toBeBudgeted);
+        monthBudgets.splice(index, 1);
+        this.toBeBudgeted = toBeBudgeted.json();
+        console.log("tbb", this.toBeBudgeted);
+
+        this.budgets = monthBudgets.map((budget) => {
+          return budget.jsonFull(getAllTransactions(),getAllBudgets())
+        });
+        this.loading = false;
+        console.log(this.budgets);
+      })
     },
     updated(value){
       console.log(value);

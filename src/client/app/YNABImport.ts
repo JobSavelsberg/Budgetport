@@ -1,18 +1,22 @@
 import assert from "assert";
 import { parse } from "path";
 import * as db from "./db";
+import { Month } from "./objects/budget";
 import { Dayte } from "./objects/transaction";
 
 export function importYNAB(budgetsFile: any, registerFile: any){
     importTransactions(registerFile).then(() => {
         console.log("Imported Transactions!");
     })
+    importBudgets(budgetsFile).then(() => {
+        console.log("Imported Budgets!");
+    })
 }
 
 // Import Transactions
 export async function importTransactions(registerFile: any){
     console.log("importTransaction");
-    let registerReader = new FileReader();
+    const registerReader = new FileReader();
     registerReader.readAsText(registerFile, "UTF-8");
     registerReader.onload =  async evt => {
         assert(evt.target);
@@ -22,29 +26,15 @@ export async function importTransactions(registerFile: any){
         }
         if(typeof register === 'string'){
             const registerJson = tsvJSON(register);
-            console.log(registerJson);
-            const biggestSize = {
-                account: 0,
-                date: 0,
-                payee: 0,
-                categoryGroup: 0,
-                category: 0,
-                memo: 0,
-                inflow: 0,
-                outflow: 0
-            }
             for(const transactionKey in registerJson){
                 const YNABTran = registerJson[transactionKey];
-                biggestSize.account = Math.max(String(YNABTran.Account).length, biggestSize.account);
-                biggestSize.date = Math.max(String(formatDate(YNABTran.Date)).length, biggestSize.date);
-                biggestSize.payee = Math.max(String(YNABTran.Payee).length, biggestSize.payee);
-                biggestSize.categoryGroup = Math.max(String(YNABTran['Category Group']).length, biggestSize.categoryGroup);
-                biggestSize.category = Math.max(String(YNABTran.Category).length, biggestSize.category);
-                biggestSize.memo = Math.max(String(YNABTran.Memo).length, biggestSize.memo);
-                biggestSize.inflow = Math.max(String(YNABTran.Inflow).length, biggestSize.inflow);
-                biggestSize.outflow = Math.max(String(YNABTran.Outflow).length, biggestSize.outflow);
-
-                await db.addTransactionFromStrings(YNABTran.Account, formatDate(YNABTran.Date), YNABTran.Payee, YNABTran['Category Group'], YNABTran.Category, YNABTran.Memo, YNABTran.Inflow, YNABTran.Outflow);
+                let catGroup = YNABTran['Category Group'];
+                let cat = YNABTran.Category;
+                if(catGroup === "" && cat === ""){
+                    catGroup = "Transfer"
+                    cat = "Transfer"
+                }
+                await db.addTransactionFromStrings(YNABTran.Account, formatDate(YNABTran.Date), YNABTran.Payee, catGroup, cat, YNABTran.Memo, YNABTran.Inflow, YNABTran.Outflow);
             }
         }       
     }
@@ -52,6 +42,33 @@ export async function importTransactions(registerFile: any){
       console.error(evt);
     }
 }
+
+// Import Budgets
+export async function importBudgets(budgetsFile: any){
+    console.log("importTransaction");
+    const budgetsReader = new FileReader();
+    budgetsReader.readAsText(budgetsFile, "UTF-8");
+    budgetsReader.onload =  async evt => {
+        assert(evt.target);
+        let budgets = evt.target.result;
+        if(typeof budgets !== 'string'){
+            budgets = String.fromCharCode.apply(evt.target.result);
+        }
+        if(typeof budgets === 'string'){
+            const budgetsJson = tsvJSON(budgets);
+            for(const budgetKey in budgetsJson){
+                const YNABBudget = budgetsJson[budgetKey];
+                await db.addBudgetFromStrings(formatMonth(YNABBudget.Month), YNABBudget["Category Group"], YNABBudget.Category, YNABBudget.Budgeted);
+                // YNABBudget.Available can be checked
+                // YNABBudget.Activity can be checked
+            }
+        }       
+    }
+    budgetsReader.onerror = evt => {
+      console.error(evt);
+    }
+}
+
 
 function tsvJSON(tsv: string): any {
     const lines = tsv.split('\n');
@@ -78,4 +95,9 @@ function tsvJSON(tsv: string): any {
 function formatDate(YNABDate: string): string{
     const splitString = Array.from(YNABDate.split("/", 3), Number);
     return new Dayte(splitString[2], splitString[1], splitString[0]).toString();
+}
+
+function formatMonth(YNABMonth: string): string{
+    const date = new Date(YNABMonth);
+    return new Month(date.getFullYear(), date.getMonth()+1).getString();
 }

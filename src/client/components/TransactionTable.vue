@@ -73,10 +73,10 @@
       <v-chip :color="getCategory(item.categoryId).getColor()" dark>{{ getCategory(item.categoryId).getName()}}</v-chip>
     </template>
     <template v-slot:item.inflow="{ item }">
-      <MoneyChip v-if="item.inflow>0" v-model="item.inflow" chip-color="success" @change="updated(item)"/>
+      <MoneyChip v-if="greaterThanZero(item.inflow)" v-model="item.inflow" chip-color="success" @change="updated(item)"/>
     </template>
     <template v-slot:item.outflow="{ item }">
-      <MoneyChip v-if="item.outflow>0" v-model="item.outflow" chip-color="warning" @change="updated(item)"/>
+      <MoneyChip v-if="greaterThanZero(item.outflow)" v-model="item.outflow" chip-color="warning" @change="updated(item)"/>
     </template>
     <template v-slot:item.actions="{ item }">
       <v-icon @click="editItem(item)">
@@ -94,7 +94,7 @@ import Vue from 'vue';
 import app from "../app/app"
 import {getTransactionsSorted, getCategory,getCategories, getPayees, addTransaction, deleteTransaction} from "../app/db"
 import MoneyChip from "./MoneyChip.vue"
-
+import Money from "../app/objects/money"
 export default {
   props: [
     'depositId'
@@ -212,6 +212,13 @@ export default {
         const index = this.transactions.indexOf(transaction);
         this.transactions.splice(index,1);
       });
+    },
+    greaterThanZero(number){
+      if(typeof number === Money){
+        return number.greaterThan(Money.ZERO());
+      }else{
+        return number > 0;
+      }
     }
   },
   components: {

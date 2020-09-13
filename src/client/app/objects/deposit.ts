@@ -1,3 +1,4 @@
+import Money from "./money";
 import { Transaction } from "./transaction";
 
 export class Deposit{
@@ -5,12 +6,12 @@ export class Deposit{
     readonly id?: number;
     readonly name: string;
     private transactions: Map<number, Transaction>;
-    private balance: number;
+    private balance: Money;
 
     constructor(id: number, name:string) { 
         this.id = id;
         this.name = name;
-        this.balance = 0;
+        this.balance = Money.ZERO();
     }  
 
     public static createWithTransactions(name: string, transactions: Map<number, Transaction>): Deposit{
@@ -20,8 +21,8 @@ export class Deposit{
     }
 
     public addTransaction(transaction: Transaction){
-        this.balance += transaction.inflow;
-        this.balance -= transaction.outflow;
+        this.balance.increase(transaction.inflow);
+        this.balance.decrease(transaction.outflow);
         if(this.transactions === undefined){
             this.transactions = new Map();
         }
@@ -34,26 +35,26 @@ export class Deposit{
     }
 
     private calculateBalance(): void{
-        this.balance = 0;
+        this.balance = Money.ZERO();
         this.transactions.forEach((transaction: Transaction) => {
-            this.balance += transaction.inflow;
-            this.balance -= transaction.outflow;
+            this.balance.increase(transaction.inflow);
+            this.balance.decrease(transaction.outflow);
         });
     }
 
-    public addBalance(add: number){
-        this.balance += add;
+    public addBalance(add: Money){
+        this.balance.increase(add);
     }
 
-    public getBalance(): number{
+    public getBalance(): Money{
         return this.balance;
     }
 
     public removeTransaction(id: number){
         const transaction = this.transactions.get(id);
         if(transaction){
-            this.balance -= transaction.inflow;
-            this.balance += transaction.outflow;
+            this.balance.decrease(transaction.inflow);
+            this.balance.increase(transaction.outflow);
             this.transactions.delete(id);
         }else{
             throw new Error(`cannot find transaction with id: ${id}`);

@@ -1,9 +1,11 @@
+import assert from "assert";
 import { Category, CategoryGroup } from "./category";
+import Money from "./money";
 import { Transaction } from "./transaction";
 
 export class Month{
     year: number;
-    month: number;
+    month: number; // Stored as Jan = 1
 
     constructor(year: number, month: number){
         this.year = year;
@@ -38,19 +40,19 @@ export class Budget{
     id: number;
     month: Month;
     category: Category;
-    budgeted: number;
+    budgeted: Money;
 
-    constructor(id: number, month: Month, category: Category, budgeted: number){
+    constructor(id: number, month: Month, category: Category, budgeted: Money){
         this.id = id;
         this.month = month;
         this.category = category;
         this.budgeted = budgeted;
     }
 
-    public getActivity(allTransactions: Transaction[]): number{
-        let activity = 0;
+    public getActivity(allTransactions: Transaction[]): Money{
+        const activity = Money.ZERO();
         this.getActivityTransactions(allTransactions).forEach((transaction: Transaction) => {
-            activity += transaction.inflow - transaction.outflow;
+            activity.increase(transaction.inflow.minus(transaction.outflow));
         });
         return activity;
     }
@@ -63,18 +65,18 @@ export class Budget{
         })
     }
 
-    public getAvailable(budgets: Budget[], allTransactions: Transaction[]): number{
-        let available = 0;
+    public getAvailable(budgets: Budget[], allTransactions: Transaction[]): Money{
+        const available = Money.ZERO();
         budgets.forEach((budget:Budget) => {
             if(budget.category === this.category && budget.month.year <= this.month.year && budget.month.month <= this.month.month){
-                available += Number(budget.budgeted);
+                available.increase(budget.budgeted);
             }
         })
         allTransactions.forEach((transaction: Transaction) => { 
             if(transaction.getDate().year <= this.month.year && 
                 transaction.getDate().month <= this.month.month && 
                 transaction.getCategory() === this.category){
-                available += Number(transaction.inflow) - Number(transaction.outflow);
+                available.increase(transaction.inflow.minus(transaction.outflow));
             }
         })
         return available;
@@ -90,7 +92,7 @@ export class Budget{
             categoryGroupName: this.category.group.name,
             categoryColor: this.category.color,
             goal: 0,
-            budgeted: Number(this.budgeted),
+            budgeted: this.budgeted.toNumber(),
             activity: 0,
             available: 0,
         }
@@ -105,9 +107,30 @@ export class Budget{
             categoryGroupName: this.category.group.name,
             categoryColor: this.category.color,
             goal: 0,
-            budgeted: Number(this.budgeted),
-            activity: Number(this.getActivity(allTransactions)),
-            available: Number(this.getAvailable(budgets, allTransactions))
+            budgeted: this.budgeted.toNumber(),
+            activity: this.getActivity(allTransactions).toNumber(),
+            available: this.getAvailable(budgets, allTransactions).toNumber()
         }
+    }
+
+    private YNABActivity = Money.ZERO();
+    private YNABAvailable = Money.ZERO();
+    public setYNABCalculatedValues(activity: string, available: string){
+        const parsedActivity = parseFloat(activity.replace('"', '').replace(',','.').replace(' ',''));
+        const parsedAvailable = parseFloat(available.replace('"', '').replace(',','.').replace(' ',''));
+        this.YNABActivity = Money.fromNumber(parsedActivity);
+        this.YNABAvailable = Money.fromNumber(parsedAvailable);
+    }
+
+    public checkWithYNABCalculatedValues(budgets: Budget[], allTransactions: Transaction[]){
+        const calculatedAvailable = this.getAvailable(budgets, allTransactions);
+        const calculatedActivity = this.getActivity(allTransactions);
+        console.log("YNAB Available", this.YNABAvailable, "Calc Available", calculatedAvailable);
+        console.log("YNAB Activity", this.YNABActivity, "Calc Activity", calculatedActivity);
+        if(!calculatedAvailable.equals(this.YNABAvailable)){
+            console.log(`calculated Available: ${calculatedAvailable} does not correspond to YNAB Available: ${this.YNABAvailable}!!!!`);
+        }
+        //assert(calculatedAvailable.equals(this.YNABAvailable), `calculated Available: ${calculatedAvailable} does not correspond to YNAB Available: ${this.YNABAvailable}`);
+        assert(calculatedActivity.equals(this.YNABActivity), `calculated activity: ${calculatedActivity} does not correspond to YNAB activity: ${this.YNABActivity}`)
     }
 }

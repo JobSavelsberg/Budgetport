@@ -2,10 +2,11 @@ import axios from "axios";
 import { Transaction, Dayte } from "./objects/transaction";
 import { Category, CategoryGroup } from "./objects/category";
 import { Budget, Month } from "./objects/budget";
-import assert from "assert";
+import assert, { rejects } from "assert";
 import { Deposit } from "./objects/deposit";
 import e from "express";
 import { moveMessagePortToContext } from "worker_threads";
+import Money from "./objects/money";
 
 /**
  *  Used to keep track of all database objects, transactions budgets, categories.
@@ -61,13 +62,13 @@ export async function load(){
         const getTransactions = api.get("/transactions/").then((transactionsRes: any)=>{
             const transactionsData = transactionsRes.data;
             transactionsData.forEach((t: any) => {
-                importTransaction(t.id, t.deposit_id, t.date, t.payee, t.category_id, t.memo, Number(t.inflow), Number(t.outflow));
+                importTransaction(t.id, t.deposit_id, t.date, t.payee, t.category_id, t.memo, Money.fromString(t.inflow), Money.fromString(t.outflow));
             });
         });
         const getBudgets = api.get("/budgets/").then((budgetsRes: any)=>{
             const budgetsData = budgetsRes.data;
             budgetsData.forEach((b: any) => {
-                importBudget(b.id, b.month, b.category_id, b.budgeted);
+                importBudget(b.id, b.month, b.category_id, Money.fromString(b.budgeted));
             });
         });
         return Promise.all([getTransactions, getBudgets]).then(()=>{
@@ -171,7 +172,7 @@ async function addDeposit(name: string): Promise<Deposit>{
 /*
 *  Create Transaction retrieved from db and add it to the list of transactions
 */
-function importTransaction(id: number, deposit_id: number, date: string, payee: string, category_id: number, memo: string, inflow: number, outflow: number){
+function importTransaction(id: number, deposit_id: number, date: string, payee: string, category_id: number, memo: string, inflow: Money, outflow: Money){
     const deposit = deposits.get(deposit_id);
     const category = categories.get(category_id);
     if(deposit && category){
@@ -186,47 +187,48 @@ function importTransaction(id: number, deposit_id: number, date: string, payee: 
     }
 }
 
-export async function addTransactionFromStrings(deposit: string, date: string, payee: string, categoryGroup: string, category: string, memo: string, inflow: string, outflow: string){
-    console.log(deposit, date, payee, categoryGroup, category, memo, inflow, outflow);
-    return Promise.all([ensureDeposit(deposit), ensureCategory(categoryGroup, category)]).then(([deposit, category]) => {
+export async function addTransactionFromStrings(deposit: string, date: string, payee: string, categoryGroup: string, category: string, memo: string, inflow: string, outflow: string): Promise<Transaction>{
+    return Promise.all([ensureDeposit(deposit), ensureCategory(categoryGroup, category)]).then(([deposit, category]): Promise<Transaction> => {
         assert(deposit.id);
         assert(category.id);
         const inflowNumber = parseFloat(inflow.replace(',','.').replace(' ',''));
         const outflowNumber = parseFloat(outflow.replace(',','.').replace(' ',''));
-        addTransaction(deposit.id, date, payee, category.id, memo, inflowNumber, outflowNumber);
+        return addTransaction(deposit.id, date, payee, category.id, memo, Money.fromNumber(inflowNumber), Money.fromNumber(outflowNumber));
     });
 }
 
 /**
  * Create Transaction and make sure the database is up to date
  */
-export async function addTransaction(deposit_id: number, date: string, payee: string, category_id: number, memo: string, inflow: number, outflow: number){
+export async function addTransaction(deposit_id: number, date: string, payee: string, category_id: number, memo: string, inflow: Money, outflow: Money): Promise<Transaction>{
     const deposit = deposits.get(deposit_id);
     const category = categories.get(category_id);
     if(deposit && category){
-        if(inflow > 0 && outflow > 0) throw new Error('Both inflow and outflow are set');
+        if(inflow.greaterThan(Money.ZERO()) && outflow.greaterThan(Money.ZERO())) throw new Error('Both inflow and outflow are set');
         const transaction = {
             depositId: deposit.id,
             date: date,
             payee: payee,
             categoryId: category.id,
             memo: memo,
-            inflow: Number(inflow),
-            outflow: Number(outflow)
+            inflow: inflow.toNumber(),
+            outflow:outflow.toNumber()
         }
-        await api.post("/transactions/", transaction).then((transactionsRes: any)=>{
+        return api.post("/transactions/", transaction).then((transactionsRes: any): Transaction=>{
             const id = transactionsRes.data[0].id;
             assert(id);
             const transaction = new Transaction(id, deposit, Dayte.fromString(date), payee, category, memo, inflow, outflow);
             allTransactions.set(id, transaction);
             deposit.addTransaction(transaction);
             addPayee(payee);
+            return transaction;
         });
     }else if(!deposit){
         throw new Error(`Deposit does not exist; deposit id: ${deposit_id}`);
     }else if(!category){
         throw new Error(`Category does not exist; category id: ${category_id}`);
     }
+    throw new Error("couldn't create transaction");
 }
 
 export async function deleteTransaction(id: number){
@@ -251,7 +253,7 @@ function addPayee(payee: string){
 /*
 *  Create Budget retrieved from db and add it to the list of budgets
 */
-function importBudget(budgetId: number, month: string, categoryId: number, budgeted: number): Budget{
+function importBudget(budgetId: number, month: string, categoryId: number, budgeted: Money): Budget{
     const category = categories.get(categoryId);
     assert(category, `budget contains unknown categoryId: ${categoryId}`);
     const budget = new Budget(budgetId, Month.fromString(month), category, budgeted);
@@ -261,25 +263,28 @@ function importBudget(budgetId: number, month: string, categoryId: number, budge
 /**
  * Create Budget and make sure the database is up to date
  */
-async function addBudget(month: Month, category: Category, budgeted?: number){
+async function addBudget(month: Month, category: Category, budgeted?: Money): Promise<Budget>{
+    console.log(month, category, budgeted);
     const budgetJson = {
         month: month.getString(),
         categoryId: category.id,
-        budgeted: budgeted || 0
-    };
-    await api.post("/budgets/", budgetJson).then((budgetRes: any)=>{
+        budgeted: budgeted ? budgeted.toNumber() : 0
+    }
+    console.log(budgetJson);
+
+    return api.post("/budgets/", budgetJson).then((budgetRes: any): Budget=>{
         const id = budgetRes.data[0].id;
         assert(id);
-        const budget = new Budget(id, month, category, budgeted || 0);
+        const budget = new Budget(id, month, category, budgeted || Money.ZERO());
         budgets.set(id, budget);
+        return budget;
     });
 }
-export async function addBudgetFromStrings(monthString: string, categoryGroup: string, category: string, budgeted: string){
-    console.log(monthString, categoryGroup, category, budgeted);
-    return ensureCategory(categoryGroup, category).then((category) => {
+export async function addBudgetFromStrings(monthString: string, categoryGroup: string, category: string, budgeted: string): Promise<Budget>{
+    return ensureCategory(categoryGroup, category).then((category): Promise<Budget>=> {
         assert(category.id);
         const parsedBudgeted = parseFloat(budgeted.replace(',','.').replace(' ',''));
-        addBudget(Month.fromString(monthString), category, parsedBudgeted);
+        return addBudget(Month.fromString(monthString), category, Money.fromNumber(parsedBudgeted));
     });
 }
 
@@ -335,7 +340,7 @@ export async function ensureBudgets(month: Month){
             monthBudgets.push(budget);
         }
     })
-    const addPromises: Promise<void>[] = []
+    const addPromises: Promise<Budget>[] = []
     categories.forEach(async (category: Category) => {
         // If category can find no budget that represents it, create a new budget with that category
         if(monthBudgets.every((monthBudget: Budget)=>{
@@ -373,10 +378,10 @@ export function getDeposits(): Deposit[]{
     return Array.from(deposits.values());
 }
 
-export function getTotalBalance(): number{
-    let sum = 0;
+export function getTotalBalance(): Money{
+    const sum = Money.ZERO();
     deposits.forEach((deposit: Deposit) => {
-        sum += deposit.getBalance();
+        sum.increase(deposit.getBalance());
     })
     return sum;
 }

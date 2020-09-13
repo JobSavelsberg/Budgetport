@@ -65,9 +65,9 @@ export default {
       },
       selectedBalance(){
           if(this.selectedId >= 1 ){
-              return this.selectedDeposit.getBalance();
+              return this.selectedDeposit.getBalance().toNumber();
           }else{
-              return db.getTotalBalance();
+              return db.getTotalBalance().toNumber();
           }
       }
   },

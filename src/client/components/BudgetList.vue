@@ -17,13 +17,13 @@
             <td class="groupRow ">
             </td>
             <td class="groupRow">
-              <MoneyChip no-edit="true" chip-color="success" v-model="getCategoryGroupBudget(items).budgeted"/>
+              <MoneyChip :no-edit="false" chip-color="success" v-model="getCategoryGroupBudget(items).budgeted"/>
             </td>
             <td class="groupRow">
-              <MoneyChip no-edit="true" chip-color="info" v-model="getCategoryGroupBudget(items).activity"/>
+              <MoneyChip :no-edit="true" chip-color="info" v-model="getCategoryGroupBudget(items).activity"/>
             </td>
             <td class="groupRow">
-              <MoneyChip no-edit="true" chip-color="warning" v-model="getCategoryGroupBudget(items).available"/>
+              <MoneyChip :no-edit="true" chip-color="warning" v-model="getCategoryGroupBudget(items).available"/>
             </td>
         </template>
         
@@ -42,11 +42,11 @@
         </template>
 
         <template v-slot:item.activity="{ item }">
-          <MoneyChip no-edit="true" chip-color="info" :value="item.activity"/>
+          <MoneyChip :no-edit="true" chip-color="info" :value="item.activity"/>
         </template>
 
         <template v-slot:item.available="{ item }">
-          <MoneyChip no-edit="true" chip-color="warning" :value="item.available"/>
+          <MoneyChip :no-edit="true" chip-color="warning" :value="item.available"/>
         </template>
     </v-data-table>
 </template>
@@ -55,7 +55,7 @@
 import {getBudgets, getAllTransactions, getAllBudgets, ensureBudgets} from "../app/db"
 import {Month} from "../app/objects/budget"
 import MoneyChip from "./MoneyChip.vue"
-
+import Money from '../app/objects/money'
 export default {
   props: [
     'month'
@@ -82,10 +82,11 @@ export default {
   },
   methods:{
     getCategoryGroupBudget(budgets){
+      // TODO: calculate
       const groupBudget = {
-        budgeted: 0,
-        activity: 0,
-        available: 0
+        budgeted: Money.ZERO(),
+        activity: Money.ZERO(),
+        available: Money.ZERO()
       }
       return groupBudget;
     },

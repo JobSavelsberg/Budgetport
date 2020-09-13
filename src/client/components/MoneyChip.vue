@@ -1,23 +1,25 @@
 <template>
     <div class="moneyChip">
         <v-spacer></v-spacer>
-        <v-chip v-if="editing === false || noEdit" @click="clickedChip" :color="color" :text-color="chipColor" dark :outlined="outlined">{{value | formatNumberMoney}}</v-chip>
+        <v-chip v-if="editing === false || noEdit" @click="clickedChip" :color="color" :text-color="chipColor" dark :outlined="outlined">{{toNumber(value)| formatNumberMoney}}</v-chip>
         <v-text-field v-else autofocus @focus="focused" :readonly="noEdit" v-click-outside="finishInput" @keydown.enter="finishInput" :suffix="moneyPrefix" :color="chipColor" v-model="editableValue" type="number" class="moneyInput numberInput shrink"
  solo rounded outlined dense single-line placeholder="0" hide-details reverse>{{editableValue}}</v-text-field>
     </div>
 </template>
 
 <script>
+import Money from '../app/objects/money'
+
 export default {
-    props: [
-        'noEdit',
-        'chipColor',
-        'value'
-    ],
+    props: {
+        noEdit: Boolean,
+        chipColor: String,
+        value: [Money, Number, String],
+    },
     data () {
         return {
             moneyPrefix:"",//€$
-            editableValue: JSON.parse(this.value),
+            editableValue: typeof this.value ===  Money ? this.value.toNumber() : this.value,
             editing: false,
             outlined: true,
         }
@@ -38,9 +40,9 @@ export default {
         finishInput(){
             console.log("blur");
             this.editing = false;
-            if(this.editableValue !== this.value){
-                this.$emit('input', this.editableValue);
-                this.$emit('change', this.editableValue);
+            if(this.editableValue != this.value.toString()){
+                this.$emit('input', Money.fromNumber(this.editableValue));
+                this.$emit('change', Money.fromNumber(this.editableValue));
             }
         },
         save () {
@@ -55,6 +57,13 @@ export default {
         close () {
         console.log('close')
         },
+        toNumber(value){
+            if(typeof value === Money){
+                return value.toNumber();
+            }else{
+                return value;
+            }
+        }
     }
 }
 </script>

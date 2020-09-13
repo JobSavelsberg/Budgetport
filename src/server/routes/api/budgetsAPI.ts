@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
     pool.query(`INSERT INTO budgets( user_id, month, category_id, budgeted )
         VALUES($1, $2, $3, $4)
         RETURNING id;`,
-    [userId, b.month, b.categoryId, b.budgeted],
+    [userId, b.month, b.categoryId, b.budgeted.toNumber],
     (error, results) => {
         if (error) throw error;
         res.status(200).json(results.rows)

@@ -1,5 +1,6 @@
 import { Deposit } from "./deposit";
 import { Category } from "./category";
+import Money from "./money";
 
 export class Transaction{
     private id: number;
@@ -9,13 +10,13 @@ export class Transaction{
     private payee: string;
     category: Category;
     memo: string;
-    inflow: number;
-    outflow: number;
+    inflow: Money;
+    outflow: Money;
 
     /*
     *   Only input required fields, other fields can be set via the object
     */
-    constructor(id: number, deposit: Deposit, date: Dayte, payee: string, category: Category, memo: string, inflow: number, outflow: number){
+    constructor(id: number, deposit: Deposit, date: Dayte, payee: string, category: Category, memo: string, inflow: Money, outflow: Money){
         this.id = id;
         this.deposit = deposit;
         this.date = date;
@@ -34,8 +35,8 @@ export class Transaction{
             payee: this.payee,
             categoryId: this.category.id,
             memo: this.memo,
-            inflow: this.inflow,
-            outflow: this.outflow
+            inflow: this.inflow.toNumber(),
+            outflow: this.outflow.toNumber()
         }
     }
 
@@ -44,13 +45,13 @@ export class Transaction{
     public setPayee(payee: string){ this.payee = payee; }
     public setCategory(category: Category){ this.category = category; }
     public setMemo(memo: string){ this.memo = memo; }
-    public setInflow(inflow: number){ 
-        this.deposit.addBalance(-this.inflow || 0 + inflow);
-        this.inflow = Number(inflow); 
+    public setInflow(inflow: Money){ 
+        this.deposit.addBalance(inflow.minus(this.inflow));
+        this.inflow = inflow; 
     }
-    public setOutflow(outflow: number){ 
-        this.deposit.addBalance(this.outflow || 0 - outflow);
-        this.outflow = Number(outflow); 
+    public setOutflow(outflow: Money){ 
+        this.deposit.addBalance(outflow.minus(this.outflow));
+        this.outflow = outflow; 
     }
 
     public getID(): number{ return this.id; }
@@ -60,7 +61,7 @@ export class Transaction{
     public getCategory(): Category{ return this.category; }
     public getMemo(): string{ return this.memo; }
 
-    public getInflow(): number{ return this.inflow; }
+    public getInflow(): Money{ return this.inflow; }
 
 
     public static sortByDate(a: Transaction, b: Transaction): number{

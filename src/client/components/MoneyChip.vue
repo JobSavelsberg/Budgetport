@@ -21,12 +21,12 @@ export default {
             moneyPrefix:"",//€$
             editableValue: typeof this.value ===  Money ? this.value.toNumber() : this.value,
             editing: false,
-            outlined: true,
+            outlined: false,
         }
     },
     computed: {
         color(){
-            return this.outlined ? this.chipColor : '#1a1a1a';
+            return this.outlined && this.value > 0 ? this.chipColor : '#1a1a1a';
         },
     },
     methods:{
@@ -41,7 +41,7 @@ export default {
             console.log("blur");
             this.editing = false;
             if(this.editableValue != this.value.toString()){
-                this.$emit('input', Money.fromNumber(this.editableValue));
+                this.$emit('input', Money.fromNumber(this.editableValue).toNumber());
                 this.$emit('change', Money.fromNumber(this.editableValue));
             }
         },

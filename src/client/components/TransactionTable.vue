@@ -1,5 +1,5 @@
 <template>
-  <v-data-table :headers="headers" :items="getTransactions" :items-per-page="20" class="elevation-1 transactionTable" multi-sort v-on:transactionChange :loading="loading">
+  <v-data-table :headers="headers" :items="getTransactions" :items-per-page="20" class="elevation-1 transactionTable" multi-sort v-on:transactionChange :loading="loading" dense>
     <template v-if="headers[0].text !== 'Deposit'" v-slot:body.prepend="{ headers }" >
       <tr>
         <td>
@@ -70,13 +70,13 @@
     </template>
 
     <template v-slot:item.categoryId="{ item }">
-      <v-chip :color="getCategory(item.categoryId).getColor()" dark>{{ getCategory(item.categoryId).getName()}}</v-chip>
+      <v-chip small :color="getCategory(item.categoryId).getColor()" dark>{{ getCategory(item.categoryId).getName()}}</v-chip>
     </template>
     <template v-slot:item.inflow="{ item }">
-      <MoneyChip v-if="greaterThanZero(item.inflow)" v-model="item.inflow" chip-color="success" @change="updated(item)"/>
+      <MoneyChip v-if="greaterThanZero(item.inflow)" v-model="item.inflow" chip-color="success" @change="updatedInflow(item)"/>
     </template>
     <template v-slot:item.outflow="{ item }">
-      <MoneyChip v-if="greaterThanZero(item.outflow)" v-model="item.outflow" chip-color="warning" @change="updated(item)"/>
+      <MoneyChip v-if="greaterThanZero(item.outflow)" v-model="item.outflow" chip-color="warning" @change="updatedOutflow(item)"/>
     </template>
     <template v-slot:item.actions="{ item }">
       <v-icon @click="editItem(item)">
@@ -116,13 +116,13 @@ export default {
         value => !isNaN(value) || 'Not a number',
       ],
       headers: [
-        { text: 'Date', value: 'date', width: '8%' },
+        { text: 'Date', value: 'date', width: '6%' },
         { text: 'Payee', value: 'payee',width: '15%' },
         { text: 'Category', value: 'categoryId',width: '15%' },
-        { text: 'Memo', value: 'memo',width: '50%' },
+        { text: 'Memo', value: 'memo',width: '35%' },
         { text: 'Inflow', value: 'inflow', align: 'right',width: '5%'},
         { text: 'Outflow', value: 'outflow', align: 'right',width: '5%' },
-        {text: 'Actions', value: 'actions', sortable: false,width: '5%'}
+        {text: 'Actions', value: 'actions', sortable: false,width: '10%'}
       ],
       transactions: []
     }
@@ -156,6 +156,7 @@ export default {
             align: 'start',
             sortable: true,
             value: 'deposit',
+            width: '7%'
           }
         );
       }
@@ -187,8 +188,11 @@ export default {
         this.loading = false;
       });
     },
-    updated(item){
-      console.log("updated", item)
+    updatedInflow(item){
+      console.log("updated inflow", item.inflow)
+    },
+    updatedOutflow(item){
+      console.log("updated outflow", item.outflow)
     },
     save () {
       console.log('save')
@@ -215,6 +219,7 @@ export default {
     },
     greaterThanZero(number){
       if(typeof number === Money){
+        console.log(number);
         return number.greaterThan(Money.ZERO());
       }else{
         return number > 0;

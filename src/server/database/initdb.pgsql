@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS budgets (
 );
 
 -- Creates prefererences table
-CREATE TABLE IF NOT EXISTS prefererences (
+CREATE TABLE IF NOT EXISTS preferences (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
     , user_id varchar(50) NOT NULL
     , preference_key varchar(50)

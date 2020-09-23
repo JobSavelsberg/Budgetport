@@ -42,10 +42,18 @@ const budgets: Map<number, Budget> = new Map();
 
 const payees: Map<string, number> = new Map();
 
+const preferences: Map<string, any> = new Map();
+
 /**
  * Import categories and deposits in parallel, and then transactions and budgets in parallel
  */
 export async function load(){
+    api.get("/preferences/").then((preferencesRes: any) => {
+        const preferencesData = preferencesRes.data;
+        preferencesData.forEach((d: any) => {
+            preferences.set(d.key, d.value);
+        });
+    });
     const getCategories =  api.get("/categories/").then((categoriesRes: any) => {
         const categoriesData = categoriesRes.data;
         categoriesData.forEach((c: any) => {
@@ -73,6 +81,7 @@ export async function load(){
         });
         return Promise.all([getTransactions, getBudgets]).then(()=>{
             allDeposit = Deposit.createWithTransactions("All", allTransactions);
+            checkLoadedPreferences();
             loaded = true;
         });
     });
@@ -287,6 +296,16 @@ export async function addBudgetFromStrings(monthString: string, categoryGroup: s
         return addBudget(Month.fromString(monthString), category, Money.fromNumber(parsedBudgeted));
     });
 }
+export async function updateBudget(id: number, monthString: string, category_id: number, budgeted: number){
+    const budgetJson = {
+        month: monthString,
+        categoryId: category_id,
+        budgeted: budgeted
+    }
+    return api.put(`/budgets/${id}`, budgetJson).then((res) => {
+        console.log(res);
+    });
+}
 
 
 export function getTransactions(depositId: number): Transaction[]{
@@ -331,8 +350,6 @@ export function getPayees(): string[] {
 }
 
 
-
-
 export async function ensureBudgets(month: Month){
     const monthBudgets: Budget[] = [];
     budgets.forEach((budget: Budget) => {
@@ -365,6 +382,14 @@ export function getBudgets(month: Month): Budget[]{
     })
     return monthBudgets;
 }
+export function getBudgetById(id: number): Budget{
+    const budget = budgets.get(id);
+    if(budget){
+        return budget;
+    }else{
+        throw new Error(`no budget with id ${id} found`);
+    }
+}
 
 export function getAllTransactions(): Transaction[]{
     return Array.from(allTransactions.values());
@@ -384,4 +409,33 @@ export function getTotalBalance(): Money{
         sum.increase(deposit.getBalance());
     })
     return sum;
+}
+
+export function getPreference(key): any{
+    console.log("Getting key value: ", key,preferences.get(key))
+    return preferences.get(key);
+}
+export function setPreference(key, value){
+    if(preferences.get(key)){
+        api.put(`/preferences/${key}`, value).then((res) => {
+            console.log(res);
+        });
+    }else{
+        api.post(`/preferences/`, {key, value}).then((res) => {
+            console.log(res);
+        });
+    }
+    preferences.set(key, value)
+}
+
+function checkLoadedPreferences(){
+    if(!preferences.get('categoryOrder')){
+        const categoryOrder: number[] = [];        
+        categoryGroups.forEach((categoryGroup: CategoryGroup) => {
+            categoryGroup.categories.forEach((category: Category) => {
+                categoryOrder.push(category.id);
+            })
+        })
+        setPreference('categoryOrder', categoryOrder)
+    }
 }

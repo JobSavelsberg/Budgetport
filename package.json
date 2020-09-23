@@ -40,10 +40,13 @@
     "material-design-icons-iconfont": "^5.0.1",
     "numeral": "^2.0.6",
     "pg": "^8.3.2",
+    "sortablejs": "^1.12.0",
     "v-click-outside": "^3.0.1",
     "vue": "^2.6.12",
     "vue-class-component": "^7.2.5",
+    "vue-nestable": "^2.6.0",
     "vue-property-decorator": "^9.0.0",
+    "vuedraggable": "^2.24.1",
     "vuetify": "^2.3.9",
     "vuex": "^3.5.1"
   },

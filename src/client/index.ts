@@ -3,6 +3,8 @@ import App from "./App.vue";
 import Vuetify from "vuetify";
 import colors from 'vuetify/lib/util/colors'
 import numeral from 'numeral'
+import VueNestable from 'vue-nestable'
+
 // load a locale
 const nlFormat: NumeralJSLocale = {
   delimiters: {
@@ -40,6 +42,7 @@ Vue.use(Vuetify, {
   }
 });
 
+Vue.use(VueNestable)
 
 
 const vuetify = new Vuetify({

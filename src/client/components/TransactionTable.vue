@@ -177,7 +177,7 @@ export default {
       this.loading = true;
       if(!this.inflowInput) this.inflowInput = 0;
       if(!this.outflowInput) this.outflowInput = 0;
-      addTransaction(this.depositId, this.dateInput, this.payeeInput, this.categoryInput.id, this.memoInput, this.inflowInput, this.outflowInput).then(()=>{
+      addTransaction(this.depositId, this.dateInput, this.payeeInput, this.categoryInput.id, this.memoInput, Money.fromNumber(this.inflowInput), Money.fromNumber(this.outflowInput)).then(()=>{
         const newTransactions = getTransactionsSorted(this.depositId);
         this.updateTransactions(newTransactions);
         this.payeeInput = "";

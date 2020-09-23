@@ -31,14 +31,11 @@ export default {
     },
     methods:{
         clickedChip(){
-            console.log(this.noEdit);
             if(!this.noEdit) this.editing = true;
         },
         focused(){
-            console.log("focused");
         },
         finishInput(){
-            console.log("blur");
             this.editing = false;
             if(this.editableValue != this.value.toString()){
                 this.$emit('input', Money.fromNumber(this.editableValue).toNumber());

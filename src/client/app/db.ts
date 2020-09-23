@@ -202,7 +202,11 @@ export async function addTransactionFromStrings(deposit: string, date: string, p
         assert(category.id);
         const inflowNumber = parseFloat(inflow.replace(',','.').replace(' ',''));
         const outflowNumber = parseFloat(outflow.replace(',','.').replace(' ',''));
-        return addTransaction(deposit.id, date, payee, category.id, memo, Money.fromNumber(inflowNumber), Money.fromNumber(outflowNumber));
+        const inflowMoney = Money.fromNumber(inflowNumber);
+        const outflowMoney = Money.fromNumber(outflowNumber);
+        console.log("inflow", inflowMoney);
+        console.log("outflow", outflowMoney);
+        return addTransaction(deposit.id, date, payee, category.id, memo, inflowMoney, outflowMoney);
     });
 }
 
@@ -212,6 +216,7 @@ export async function addTransactionFromStrings(deposit: string, date: string, p
 export async function addTransaction(deposit_id: number, date: string, payee: string, category_id: number, memo: string, inflow: Money, outflow: Money): Promise<Transaction>{
     const deposit = deposits.get(deposit_id);
     const category = categories.get(category_id);
+    console.log("Inflow should be Money", inflow);
     if(deposit && category){
         if(inflow.greaterThan(Money.ZERO()) && outflow.greaterThan(Money.ZERO())) throw new Error('Both inflow and outflow are set');
         const transaction = {

@@ -80,22 +80,36 @@
   <v-simple-table 
     :loading="loading"
     dense
-    id="budgetList">
+    id="budgetList"
+    :key="forceChange">
       <template v-slot:default>
         <thead>
           <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Calories</th>
+            <th v-for="header in headers" :key="header.text" :width="header.width"  :class="`text-${header.align}`">{{header.text}} 
+                <v-btn v-if="header.text==='Category'" class="mx-2 categoryAdd" rounded dark x-small color="primary"><v-icon small dark>mdi-plus</v-icon></v-btn>
+            </th>
           </tr>
         </thead>
         <tbody v-for="group in budgetsInGroups" :key="group.name" >
           <tr class="groupRow">
-            <td>{{ group.name }}</td>
-            <td>test</td>
+              <td><v-icon small color="grey">mdi-reorder-horizontal</v-icon></td>
+              <td>
+                <v-icon @click="toggleGroup(group.name)">{{ isOpen[group.name] ? 'mdi-menu-down' : 'mdi-menu-right' }}</v-icon>
+                <span class="text--subtitle-2">{{ group.name }}</span>
+                <v-btn class="mx-2 categoryAdd" rounded dark x-small color="primary"><v-icon small dark>mdi-plus</v-icon></v-btn>
+              </td>
+              <td></td>
+              <td><MoneyChip :no-edit="false" chip-color="success" v-model="getCategoryGroupBudget(group.budgets).budgeted"/></td>
+              <td><MoneyChip :no-edit="true" chip-color="info" v-model="getCategoryGroupBudget(group.budgets).activity"/></td>
+              <td><MoneyChip :no-edit="true" chip-color="warning" v-model="getCategoryGroupBudget(group.budgets).available"/></td>
           </tr>
-          <tr v-for="budget in group.budgets" :key="group.name + budget.id" class="budgetRow">
-            <td><v-chip small :color="budget.categoryColor" dark>{{ budget.categoryName }}</v-chip></td>
-            <td>test</td>   
+          <tr v-if="isOpen[group.name]" v-for="budget in group.budgets" :key="group.name + budget.id" class="budgetRow">
+            <td><v-icon small color="grey">mdi-reorder-horizontal</v-icon></td>
+            <td><div><v-chip small :color="budget.categoryColor" dark>{{ budget.categoryName }}</v-chip></div></td>          
+            <td><MoneyChip chip-color="info" v-model="budget.goal" @change="updatedGoal(budget)"/></td>
+            <td><MoneyChip chip-color="success" v-model="budget.budgeted" @change="updatedBudget(budget)"/></td>
+            <td><MoneyChip :no-edit="true" chip-color="info" :value="budget.activity"/></td>       
+            <td><MoneyChip :no-edit="true" chip-color="warning" :value="budget.available"/></td> 
           </tr>
           </tbody>
       </template>
@@ -215,9 +229,18 @@ export default {
             Vue.set(this.budgets, index, budgetInstance.jsonFull(getAllTransactions(),getAllBudgets()))
             return true;
         }
-      })
+      });
+      const budgetGroup = this.budgetsInGroups.find((group) => group.name === budget.categoryGroupName);
+      budgetGroup.budgets.some((budgetJson, index) => {
+        if (budgetJson.id == budget.id) {
+            Vue.set(budgetGroup.budgets, index, budgetInstance.jsonFull(getAllTransactions(),getAllBudgets()))
+            return true;
+        }
+      });
+      this.$emit('updated');
     },
     toggleGroup(group){
+      console.log("toggle", group)
       Vue.set(this.isOpen, group, !this.isOpen[group]);
       this.forceChange--;
     },

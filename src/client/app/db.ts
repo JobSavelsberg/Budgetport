@@ -439,3 +439,15 @@ function checkLoadedPreferences(){
         setPreference('categoryOrder', categoryOrder)
     }
 }
+
+export function toBeBudgeted(month: Month){
+    const toBeBudgetedTransactions = Array.from(allTransactions.values()).filter(transaction => transaction.category.isToBeBudgeted())
+    const inflow = toBeBudgetedTransactions.reduce((sum, transaction) => {return sum.plus(transaction.getInflow())}, Money.ZERO())
+    const totalBudgeted = Array.from(budgets.values()).reduce((sum, budget) => {
+        return sum.plus(budget.budgeted);
+    }, Money.ZERO());
+    console.log(inflow);
+    console.log(totalBudgeted);
+    // all to be budgeted inflow - all budgeted money
+    return inflow.minus(totalBudgeted);
+}

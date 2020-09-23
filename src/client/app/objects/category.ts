@@ -56,4 +56,8 @@ export class Category{
     public static getRandomColor(): string{
         return categoryColors[Math.floor(Math.random()*categoryColors.length)];
     }
+
+    public isToBeBudgeted(){
+        return this.name === "To be Budgeted"
+    }
 }

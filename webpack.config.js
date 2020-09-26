@@ -3,6 +3,7 @@ var webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 var MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { CheckerPlugin } = require('awesome-typescript-loader')
 
 const webpackConfig = {
   target: 'node'
@@ -11,10 +12,11 @@ module.exports = {
   entry: './src/client/index.ts',
   output: {
     path: path.resolve(__dirname, './build/client'),
-    publicPath: '/build/client/',
     filename: 'index.js'
   },
   mode: 'development',
+  // Source maps support ('inline-source-map' also works)
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -40,10 +42,11 @@ module.exports = {
       },
       {
         test: /\.tsx?$/,
-        loader: 'ts-loader',
+        loader: 'awesome-typescript-loader',
         exclude: /node_modules/,
         options: {
           appendTsSuffixTo: [/\.vue$/],
+
         }
       },
       {
@@ -78,6 +81,7 @@ module.exports = {
   },
   devtool: '#eval-source-map',
   plugins: [
+    new CheckerPlugin(),
     new HtmlWebpackPlugin({
       template: 'src\\client\\index.html',
     }),

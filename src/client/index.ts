@@ -4,6 +4,25 @@ import Vuetify from "vuetify";
 import colors from 'vuetify/lib/util/colors'
 import numeral from 'numeral'
 import VueNestable from 'vue-nestable'
+import store from "./store";
+import router from './routes'
+import firebase from "firebase";
+
+firebase.initializeApp({
+  apiKey: "AIzaSyB3U6fHT8OlUvE_a9ka2zrqCz2fsm7Jx-s",
+  authDomain: "budgetport-2644b.firebaseapp.com",
+  databaseURL: "https://budgetport-2644b.firebaseio.com",
+  projectId: "budgetport-2644b",
+  storageBucket: "budgetport-2644b.appspot.com",
+  messagingSenderId: "476483402040",
+  appId: "1:476483402040:web:6339e994033acf70ef69cd",
+  measurementId: "G-5KNJ3R7QT7"
+})
+
+firebase.auth().onAuthStateChanged(user => {
+  store.dispatch("fetchUser", user);
+  console.log("Dispatching user to store", user);
+});
 
 // load a locale
 const nlFormat: NumeralJSLocale = {
@@ -68,6 +87,8 @@ const vuetify = new Vuetify({
 });
 
 new Vue({
+  store: store,
+  router: router,
   vuetify,
   render: h => h(App)
 }).$mount("#app");

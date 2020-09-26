@@ -6,7 +6,9 @@ import {router as budgetsAPI} from "./routes/api/budgetsAPI";
 import {router as categoriesAPI} from "./routes/api/categoriesAPI";
 import {router as depositsAPI} from "./routes/api/depositsAPI";
 import {router as preferencesAPI} from "./routes/api/preferencesAPI";
-
+import path from "path"
+import serveStatic from 'serve-static'
+import history from 'connect-history-api-fallback';
 
 // initialize configuration
 dotenv.config();
@@ -24,5 +26,14 @@ app.use("/api/budgets", budgetsAPI);
 app.use("/api/categories", categoriesAPI);
 app.use("/api/deposits", depositsAPI);
 app.use("/api/preferences", preferencesAPI);
+
+
+// Support history api 
+app.use(history({
+     verbose: true
+}));
+
+// 2nd call for redirected requests
+app.use(express.static(path.join(__dirname, '../../build/client')));
 
 app.listen(port, () => console.log(`Server started on: http://localhost:${port}`))

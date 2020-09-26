@@ -104,7 +104,7 @@ export default {
   beforeCreate() {
     firebase.auth().onAuthStateChanged(user => {
         if(user){
-            init().then(() => {
+            init(user).then(() => {
                 this.isLoading = false;
             }).catch(() =>{
                 this.failedToLoad = true;

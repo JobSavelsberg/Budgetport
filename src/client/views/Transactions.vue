@@ -1,6 +1,6 @@
 <template>
   <div>
-      <DepositSelect v-model="depositId" />
+      <DepositSelect v-model="depositId"/>
       <TransactionTable :deposit-id="depositId"/>
   </div>
 </template>

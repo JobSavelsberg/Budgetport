@@ -3,7 +3,7 @@
     <v-row fill-height align="center">
       <v-col cols="3" fill-height>
           <h1 class="text-h4 text-center">To be Budgeted:</h1>
-          <h1 :class="`text-h3 text-center ${toBeBudgeted.toNumber() > 0 ? 'success' : 'error'}--text`">{{toBeBudgeted}}</h1>
+          <h1 :class="`text-h3 text-center ${toBeBudgeted.toNumber() >= 0 ? 'success' : 'error'}--text`">{{toBeBudgeted}}</h1>
       </v-col>
       <v-col cols="6" fill-height>
         <MonthSelect v-model="month"/>

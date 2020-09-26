@@ -7,14 +7,14 @@ DROP TABLE IF EXISTS deposits;
 -- Creates deposits table
 CREATE TABLE IF NOT EXISTS deposits (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , user_id varchar(50) NOT NULL
+    , user_id varchar(28) NOT NULL
     , name varchar(50) NOT NULL
 );
 
 -- Creates categories table
 CREATE TABLE IF NOT EXISTS categories (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , user_id varchar(50) NOT NULL
+    , user_id varchar(28) NOT NULL
     , category_group varchar(50) NOT NULL
     , category varchar(50) NOT NULL
     , color varchar(6) NOT NULL
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS categories (
 -- Creates transactions table
 CREATE TABLE IF NOT EXISTS transactions (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , user_id varchar(50) NOT NULL
+    , user_id varchar(28) NOT NULL
     , deposit_id INT NOT NULL
     , FOREIGN KEY(deposit_id) REFERENCES deposits(id)
     , date varchar(10) NOT NULL
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 -- Creates budgets table
 CREATE TABLE IF NOT EXISTS budgets (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , user_id varchar(50) NOT NULL
+    , user_id varchar(28) NOT NULL
     , month varchar(7) NOT NULL
     , category_id INT NOT NULL
     , FOREIGN KEY(category_id) REFERENCES categories(id)
@@ -48,15 +48,15 @@ CREATE TABLE IF NOT EXISTS budgets (
 -- Creates prefererences table
 CREATE TABLE IF NOT EXISTS preferences (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , user_id varchar(50) NOT NULL
+    , user_id varchar(28) NOT NULL
     , preference_key varchar(50)
-    , preference_value varchar(256)
+    , preference_value varchar(256) NULL
 );
 
 -- Creates goals table
 CREATE TABLE IF NOT EXISTS goals (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , user_id varchar(50) NOT NULL
+    , user_id varchar(28) NOT NULL
     , category_id INT NOT NULL
     , FOREIGN KEY(category_id) REFERENCES categories(id)
     , goal_type varchar(50) NOT NULL

@@ -189,10 +189,12 @@ export default {
         const toBeBudgeted = monthBudgets.find((budget) => {
           return budget.category.name === 'To be Budgeted';
         });
-        const index = monthBudgets.indexOf(toBeBudgeted);
-        monthBudgets.splice(index, 1);
-        this.toBeBudgeted = toBeBudgeted.json();
-        console.log("tbb", this.toBeBudgeted);
+        if(toBeBudgeted){
+          const index = monthBudgets.indexOf(toBeBudgeted);
+          monthBudgets.splice(index, 1);
+          this.toBeBudgeted = toBeBudgeted.json();
+        }
+       
 
         this.budgets = []
         this.budgetsInGroups = []
@@ -213,7 +215,6 @@ export default {
 
 
         this.loading = false;
-        console.log(this.budgets);
       })
     },
     updatedGoal(budget){

@@ -26,7 +26,6 @@ router.get("/:key", async (req, res) => {
 router.post("/", async (req, res) => {
     const userId = req.query.userId;
     const b = req.body;
-    console.log(b);
     pool.query(`INSERT INTO preferences( user_id, preference_key, preference_value )
         VALUES($1, $2, $3)
         RETURNING id;`,

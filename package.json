@@ -19,7 +19,8 @@
     "build:client": "webpack",
     "build:server": "rimraf ./build/server && tsc --project ./tsconfig.server.json",
     "start:db": "docker start budgetport-db",
-    "start:server": "node build/server/main.js"
+    "start:server": "node build/server/main.js",
+    "start": "node build/server/main.js"
   },
   "repository": {
     "type": "git",

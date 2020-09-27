@@ -88,7 +88,7 @@ module.exports = {
     new webpack.EnvironmentPlugin(Object.keys(Dotenv.parsed || {})),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: '"development"'
+        NODE_ENV: '"development2"'
       }
     }),
     new CheckerPlugin(),

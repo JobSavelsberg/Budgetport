@@ -15,6 +15,9 @@ import * as admin from 'firebase-admin';
 
 // initialize configuration
 dotenv.config();
+
+console.log(process.env);
+
 const credentials = {
   type: "service_account",
   project_id: process.env.FB_PROJECT_ID,

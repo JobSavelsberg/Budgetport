@@ -14,8 +14,8 @@ import Money from "./objects/money";
  */
 
 
-const port = process.env.SERVER_PORT || 5000;
-const url = process.env.HOST_URL || "http://localhost" + ":" + port + "/api";
+const port = process.env.VUE_APP_SERVER_PORT || 5000;
+const url = process.env.VUE_APP_HOST_URL || "http://localhost" + ":" + port + "/api";
 
 let api;
 

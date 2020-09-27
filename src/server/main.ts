@@ -40,7 +40,7 @@ admin.initializeApp({
 });
 
 
-const port = process.env.SERVER_PORT || 5000;
+const port = process.env.VUE_APP_SERVER_PORT || 5000;
 
 const app = express();
 
@@ -63,4 +63,4 @@ app.use("/api/categories", categoriesAPI);
 app.use("/api/deposits", depositsAPI);
 app.use("/api/preferences", preferencesAPI);
 
-app.listen(port, () => console.log(`Server started on: http://localhost:${port}`))
+app.listen(port, () => console.log(`Server started on: ${process.env.VUE_APP_HOST_URL}:${port}`))

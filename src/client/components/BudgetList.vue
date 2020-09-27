@@ -1,4 +1,5 @@
 <template>
+<div>
   <v-simple-table 
     :loading="loading"
     dense
@@ -8,44 +9,7 @@
         <thead>
           <tr>
             <th v-for="header in headers" :key="header.text" :width="header.width"  :class="`text-${header.align}`">{{header.text}} 
-                <v-dialog
-                    v-model="categoryGroupDialog"
-                    max-width="400"
-                    >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-btn v-if="header.text==='Category'" class="mx-2 categoryAdd" rounded dark x-small color="primary"  v-bind="attrs" v-on="on"><v-icon small dark>mdi-plus</v-icon></v-btn>
-                        </template>
-                        <v-card>
-                            <v-card-title class="headline">Add Category Group</v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12">
-                                        <v-text-field v-model="catGroupName" label="Category Group Name" required></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-
-                            <v-card-actions>
-                            <v-btn
-                                color="red darken-1"
-                                text
-                                @click="categoryGroupDialog = false"
-                            >
-                                Cancel
-                            </v-btn>
-                            <v-spacer></v-spacer>
-                            <v-btn
-                                color="green darken-1"
-                                text
-                                @click="categoryGroupDialog = false; createCategoryGroup()"
-                            >
-                                Create
-                            </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+                <v-btn v-if="header.text==='Category'" class="mx-2 categoryAdd" rounded dark x-small color="primary" @click="categoryGroupDialog = true"><v-icon small dark>mdi-plus</v-icon></v-btn>
             </th>
           </tr>
         </thead>
@@ -55,54 +19,7 @@
               <td>
                 <v-icon @click="toggleGroup(group.name)">{{ isOpen[group.name] ? 'mdi-menu-down' : 'mdi-menu-right' }}</v-icon>
                 <span class="text--subtitle-2">{{ group.name }}</span>
-                 <v-dialog
-                    v-model="categoryDialog"
-                    max-width="400"
-                    >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-btn class="mx-2 categoryAdd" rounded dark x-small color="primary"  v-bind="attrs" v-on="on"><v-icon small dark>mdi-plus</v-icon></v-btn>
-                        </template>
-                        <v-card>
-                            <v-card-title class="headline">Add a new Category</v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12">
-                                        <v-text-field v-model="catName" label="Category Name" required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12">
-                                          <v-color-picker
-                                          v-model="catColor"
-                                            dot-size="25"
-                                            mode="hexa"
-                                            class="no-alpha"
-                                            swatches-max-height="100"
-                                            dark
-                                          ></v-color-picker>                                        
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-
-                            <v-card-actions>
-                            <v-btn
-                                color="red darken-1"
-                                text
-                                @click="categoryDialog = false"
-                            >
-                                Cancel
-                            </v-btn>
-                            <v-spacer></v-spacer>
-                            <v-btn
-                                color="green darken-1"
-                                text
-                                @click="categoryDialog = false; createCategory(group)"
-                            >
-                                Create
-                            </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+                <v-btn class="mx-2 categoryAdd" rounded dark x-small color="primary"  @click="categoryDialog = true; categoryDialogGroup = group"><v-icon small dark>mdi-plus</v-icon></v-btn>        
               </td>
               <td></td>
               <td><MoneyChip :no-edit="false" chip-color="success" v-model="getCategoryGroupBudget(group.budgets).budgeted"/></td>
@@ -120,7 +37,88 @@
           </tbody>
       </template>
     </v-simple-table>
+     <v-dialog
+      v-model="categoryGroupDialog"
+      max-width="400"
+      >
+          <v-card>
+              <v-card-title class="headline">Add Category Group</v-card-title>
+              <v-card-text>
+                  <v-container>
+                      <v-row>
+                          <v-col cols="12">
+                          <v-text-field v-model="catGroupName" label="Category Group Name" required></v-text-field>
+                          </v-col>
+                      </v-row>
+                  </v-container>
+              </v-card-text>
 
+              <v-card-actions>
+              <v-btn
+                  color="red darken-1"
+                  text
+                  @click="categoryGroupDialog = false"
+              >
+                  Cancel
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn
+                  color="green darken-1"
+                  text
+                  @click="categoryGroupDialog = false; createCategoryGroup()"
+              >
+                  Create
+              </v-btn>
+              </v-card-actions>
+          </v-card>
+      </v-dialog>
+       <v-dialog
+      v-model="categoryDialog"
+      max-width="400"
+      >
+          <v-card>
+              <v-card-title class="headline">Add a new Category</v-card-title>
+              <v-card-text>
+                Add a new category to the group: {{categoryDialogGroup ? categoryDialogGroup.name : 'Unkown'}}
+                  <v-container>
+                      <v-row>
+                          <v-col cols="12">
+                          <v-text-field v-model="catName" label="Category Name" required></v-text-field>
+                          </v-col>
+                          <v-col cols="12">
+                            <v-color-picker
+                            v-model="catColor"
+                              dot-size="25"
+                              mode="hexa"
+                              class="no-alpha"
+                              swatches-max-height="100"
+                              dark
+                            ></v-color-picker>                                        
+                          </v-col>
+                      </v-row>
+                  </v-container>
+              </v-card-text>
+
+              <v-card-actions>
+              <v-btn
+                  color="red darken-1"
+                  text
+                  @click="categoryDialog = false"
+              >
+                  Cancel
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn
+                  color="green darken-1"
+                  text
+                  @click="categoryDialog = false; createCategory(categoryDialogGroup)"
+              >
+                  Create
+              </v-btn>
+              </v-card-actions>
+          </v-card>
+      </v-dialog>
+    </div>
 </template>
 
 <script>
@@ -152,6 +150,7 @@ export default {
         forceChange: -1,
         categoryGroupDialog: false,
         catGroupName: "",
+        categoryDialogGroup: null,
         categoryDialog: false,
         catName: "",
         catColor: "",

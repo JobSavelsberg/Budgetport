@@ -1,7 +1,7 @@
 <template>
   <v-data-table :headers="headers" :items="getTransactions" :items-per-page="20" class="elevation-1 transactionTable" multi-sort v-on:transactionChange :loading="loading" dense>
     <template v-if="headers[0].text !== 'Deposit'" v-slot:body.prepend="{ headers }" >
-      <tr>
+      <tr class="transactionInputRow elevation-5">
         <td>
           <v-menu
           v-model="menu"
@@ -235,5 +235,8 @@ export default {
 <style>
 .transactionTable{
   table-layout : fixed;
+}
+.transactionInputRow{
+  background-color: #272727;
 }
 </style>

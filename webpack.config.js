@@ -84,7 +84,7 @@ module.exports = {
   plugins: [
     new CheckerPlugin(),
     new HtmlWebpackPlugin({
-      template: 'src\\client\\index.html',
+      template: 'src/client/index.html',
     }),
     // make sure to include the plugin for the magic
     new VueLoaderPlugin()
@@ -100,6 +100,7 @@ if (process.env.NODE_ENV === 'production') {
         NODE_ENV: '"production"'
       }
     }),
+    new UglifyJsPlugin(),
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })

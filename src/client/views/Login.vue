@@ -93,6 +93,7 @@ export default {
     mounted(){ 
         firebase.auth().onAuthStateChanged(user => {
             if(user){
+              console.log(user);
                 window.setTimeout(this.loginSuccessfull(),1);
             }
         });

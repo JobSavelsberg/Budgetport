@@ -122,14 +122,17 @@ async function ensureCategory(categoryGroupName: string, categoryName: string): 
             for (const category of categoryGroup.categories) {
                 if (categoryName === category.name) return category;
             }
-            return addCategory(categoryGroupName, categoryName, categoryGroup);
+            return addCategory(categoryGroupName, categoryName, undefined, categoryGroup);
         }
     }
     return addCategory(categoryGroupName, categoryName);
 }
 
-async function addCategory(categoryGroupName: string, categoryName: string, categoryGroup?: CategoryGroup) {
-    const color = Category.getRandomColor().substring(1);
+export async function addCategory(categoryGroupName: string, categoryName: string, categoryColor?: string, categoryGroup?: CategoryGroup) {
+    let color = categoryColor || Category.getRandomColor().substring(1);
+    if (color[0] === '#') {
+        color = color.substring(1);
+    }
     const categoryJson = {
         categoryGroup: categoryGroupName,
         category: categoryName,
@@ -150,6 +153,11 @@ async function addCategory(categoryGroupName: string, categoryName: string, cate
         categories.set(id, category);
         return category;
     });
+}
+
+export function addCategoryGroup(categoryGroupName: string) {
+    categoryGroups.push(new CategoryGroup(categoryGroupName));
+    console.log(categoryGroups);
 }
 
 /*
@@ -252,7 +260,7 @@ export async function createDepositWithStartingBalance(name: string, amount: str
         const amountNumber = parseFloat(amount.replace(',', '.').replace(' ', ''));
         if (amountNumber !== 0) {
             const date = new Date()
-            return addTransactionFromStrings(name, `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`, "Starting Balance", "To be Budgeted", "To be Budgeted", "", amount, "0");
+            return addTransactionFromStrings(name, `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`, 'Starting Balance', "To be Budgeted", "To be Budgeted", `${name}: Starting Balance`, amount, "0");
         }
         return null;
     })
@@ -346,6 +354,9 @@ export function getTransactionsSorted(depositId: number): Transaction[] {
     return transactions.sort(Transaction.sortByDate);
 }
 
+export function getCategoryGroups(): CategoryGroup[] {
+    return categoryGroups;
+}
 export function getCategories(): Category[] {
     return Array.from(categories.values());
 }

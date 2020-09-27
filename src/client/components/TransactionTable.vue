@@ -116,7 +116,7 @@ export default {
         value => !isNaN(value) || 'Not a number',
       ],
       headers: [
-        { text: 'Date', value: 'date', width: '6%' },
+        { text: 'Date', value: 'date', width: '7%' },
         { text: 'Payee', value: 'payee',width: '15%' },
         { text: 'Category', value: 'categoryId',width: '15%' },
         { text: 'Memo', value: 'memo',width: '35%' },

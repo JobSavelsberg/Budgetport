@@ -14,6 +14,8 @@ import history from 'connect-history-api-fallback';
 import * as admin from 'firebase-admin';
 import assert from "assert";
 
+console.log("Starting Server")
+
 // initialize configuration
 dotenv.config();
 

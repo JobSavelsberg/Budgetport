@@ -44,7 +44,7 @@
                     max-width="290"
                     >
                         <template v-slot:activator="{ on, attrs }">
-                            <v-btn color="grey" v-bind="attrs" v-on="on">
+                            <v-btn color="#484848" v-bind="attrs" v-on="on">
                                 <v-icon> mdi-plus </v-icon>
                             </v-btn>
                         </template>

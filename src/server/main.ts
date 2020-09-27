@@ -12,17 +12,17 @@ import path from "path"
 import serveStatic from 'serve-static'
 import history from 'connect-history-api-fallback';
 import * as admin from 'firebase-admin';
+import assert from "assert";
 
 // initialize configuration
 dotenv.config();
 
-console.log(process.env);
-
+assert(process.env.FB_PRIVATE_KEY);
 const credentials = {
   type: "service_account",
   project_id: process.env.FB_PROJECT_ID,
   private_key_id: process.env.FB_PRIVATE_KEY_ID,
-  private_key: process.env.FB_PRIVATE_KEY,
+  private_key: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
   client_email: process.env.FB_CLIENT_EMAIL,
   client_id: process.env.FB_CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",

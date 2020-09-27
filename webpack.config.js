@@ -4,6 +4,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 var MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CheckerPlugin } = require('awesome-typescript-loader')
+const Dotenv = require('dotenv-webpack');
 
 const webpackConfig = {
   target: 'node'
@@ -17,6 +18,9 @@ module.exports = {
   mode: 'development',
   // Source maps support ('inline-source-map' also works)
   devtool: 'source-map',
+  node: {
+     __dirname: true
+  },
   module: {
     rules: [
       {
@@ -81,6 +85,12 @@ module.exports = {
   },
   devtool: '#eval-source-map',
   plugins: [
+    new webpack.EnvironmentPlugin(Object.keys(Dotenv.parsed || {})),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"development"'
+      }
+    }),
     new CheckerPlugin(),
     new HtmlWebpackPlugin({
       template: 'src/client/index.html',

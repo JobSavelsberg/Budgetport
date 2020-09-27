@@ -12,10 +12,13 @@ import Money from "./objects/money";
  *  Used to keep track of all database objects, transactions budgets, categories.
  *  Edits to these objects are all done via functions that also update the databse. 
  */
+console.log(process.env)
 
+const port = process.env.VUE_APP_PORT || 80;
+// Have to hardcode due to really annoying dotenv problems
+const url = process.env.NODE_ENV === "development" ?   "http://localhost" + ":" + port + "/api": "https://budgetport.herokuapp.com/";
 
-const port = process.env.VUE_APP_SERVER_PORT || 5000;
-const url = process.env.VUE_APP_HOST_URL || "http://localhost" + ":" + port + "/api";
+console.log(url, port);
 
 let api;
 

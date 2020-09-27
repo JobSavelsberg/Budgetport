@@ -40,8 +40,8 @@ admin.initializeApp({
 });
 
 
-const port = process.env.VUE_APP_SERVER_PORT || 5000;
-
+const port = process.env.PORT || 5000;
+process.env['VUE_APP_PORT'] = process.env.PORT;
 const app = express();
 
 // Support history api 

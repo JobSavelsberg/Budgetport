@@ -7,7 +7,9 @@ import VueNestable from 'vue-nestable'
 import store from "./store";
 import router from './routes'
 import firebase from "firebase";
+import path from "path";
 
+console.log(process.env);
 firebase.initializeApp({
   apiKey: "AIzaSyB3U6fHT8OlUvE_a9ka2zrqCz2fsm7Jx-s",
   authDomain: "budgetport-2644b.firebaseapp.com",

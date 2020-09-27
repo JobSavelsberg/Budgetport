@@ -20,6 +20,7 @@
     "build:server": "rimraf ./build/server && tsc --project ./tsconfig.server.json",
     "start:db": "docker start budgetport-db",
     "start:server": "node build/server/main.js",
+    "build": "npm run build:server && webpack",
     "start": "node build/server/main.js"
   },
   "repository": {

@@ -40,7 +40,7 @@ admin.initializeApp({
 });
 
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8080;
 process.env['VUE_APP_PORT'] = process.env.PORT;
 const app = express();
 

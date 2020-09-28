@@ -16,7 +16,7 @@ console.log(process.env)
 
 const port = process.env.PORT || 8080;
 // Have to hardcode due to really annoying dotenv problems
-const url = process.env.NODE_ENV === "production" ?   "https://budgetport.herokuapp.com/" :  "http://localhost" + ":" + port + "/api" ;
+const url = process.env.NODE_ENV === "production" ?   "https://budgetport.herokuapp.com/api" :  "http://localhost" + ":" + port + "/api" ;
 
 console.log(url, port);
 

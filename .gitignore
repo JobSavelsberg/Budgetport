@@ -12,6 +12,7 @@
 
 # misc
 /backup
+/data
 .DS_Store
 .env
 .env.local
